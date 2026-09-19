@@ -38,10 +38,10 @@ p{margin:0}
 button,select{font:inherit; color:inherit}
 :focus-visible{outline:3px solid var(--accent); outline-offset:2px}
 
-header.top{padding:40px 0 20px}
-.lede{max-width:62ch; color:var(--muted); margin-top:12px; font-size:1.05rem}
+header.top{padding:28px 0 16px}
+.lede{max-width:62ch; color:var(--muted); margin-top:10px; font-size:1rem}
 
-.years{display:grid; grid-template-columns:auto minmax(0,560px); column-gap:24px; align-items:center; margin-top:26px}
+.years{display:grid; grid-template-columns:auto minmax(0,560px); column-gap:24px; align-items:center; margin-top:18px}
 .bigyear{grid-row:1 / span 2; font-family:var(--serif); font-size:clamp(2.6rem,6vw,3.8rem); font-weight:650; line-height:1; font-variant-numeric:tabular-nums; min-width:3.2ch}
 .bigyear small{display:block; font-family:var(--sans); font-size:.85rem; font-weight:500; color:var(--muted); margin-top:4px}
 .slider{display:flex; align-items:center; gap:8px}
@@ -50,11 +50,40 @@ header.top{padding:40px 0 20px}
 .step:disabled{opacity:.35; cursor:default}
 .ends{display:flex; justify-content:space-between; padding:0 42px; font-size:.82rem; color:var(--muted); font-variant-numeric:tabular-nums}
 
-nav.tabs{display:flex; gap:0; border-bottom:1px solid var(--rule); margin-top:12px; overflow-x:auto}
-.tab{background:none; border:0; padding:12px 16px 10px; cursor:pointer; color:var(--muted); border-bottom:3px solid transparent; white-space:nowrap; font-weight:500}
-.tab[aria-selected="true"]{color:var(--ink); border-bottom-color:var(--tabc,var(--ink))}
+/* navigation à deux niveaux : les quatre vues principales dominent, le reste est secondaire */
+nav.tabs{margin-top:14px}
+.tabs-main{display:grid; grid-template-columns:repeat(4,1fr); gap:8px}
+.tab-m{position:relative; text-align:left; background:var(--paper); border:1px solid var(--rule); border-radius:4px;
+ padding:11px 14px 12px; cursor:pointer; color:var(--muted); font-weight:600; font-size:1rem; line-height:1.25;
+ font-family:var(--serif); letter-spacing:-.01em; transition:border-color .12s, color .12s}
+.tab-m::before{content:""; position:absolute; left:0; top:0; bottom:0; width:3px; border-radius:4px 0 0 4px;
+ background:var(--tabc,var(--ink)); opacity:.3}
+.tab-m:hover{color:var(--ink); border-color:var(--tabc,var(--ink))}
+.tab-m small{display:block; font-family:var(--sans); font-size:.74rem; font-weight:500; letter-spacing:0;
+ color:var(--muted); margin-top:3px; font-variant-numeric:tabular-nums}
+.tab-m[aria-selected="true"]{color:var(--ink); border-color:var(--tabc,var(--ink));
+ background:color-mix(in srgb,var(--tabc,var(--ink)) 8%,var(--paper)); box-shadow:inset 0 0 0 1px var(--tabc,var(--ink))}
+.tab-m[aria-selected="true"]::before{opacity:1}
+.tabs-more{display:flex; flex-wrap:wrap; gap:6px 4px; margin-top:10px; padding-top:9px; border-top:1px solid var(--rule); align-items:center}
+.tabs-more .lbl{font-size:.72rem; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); margin-right:6px}
+.tab-s{background:none; border:1px solid transparent; border-radius:999px; padding:5px 11px; cursor:pointer;
+ color:var(--muted); font-size:.87rem; font-weight:500; white-space:nowrap}
+.tab-s:hover{color:var(--ink); border-color:var(--rule)}
+.tab-s[aria-selected="true"]{color:var(--ink); border-color:var(--tabc,var(--ink));
+ background:color-mix(in srgb,var(--tabc,var(--ink)) 12%,transparent); font-weight:600}
+@media (max-width:900px){ .tabs-main{grid-template-columns:repeat(2,1fr)} }
+@media (max-width:360px){ .tabs-main{grid-template-columns:1fr} }
+@media (max-width:430px){ .tab-m{padding:9px 11px; font-size:.94rem} .tab-m small{font-size:.7rem} }
 
-main{padding:36px 20px 60px}
+/* bascule de thème */
+.hdrbar{display:flex; justify-content:space-between; align-items:flex-start; gap:20px}
+.theme{display:inline-flex; border:1px solid var(--rule); border-radius:999px; overflow:hidden; background:var(--paper); flex:none}
+.theme button{background:none; border:0; padding:5px 11px; cursor:pointer; color:var(--muted); font-size:.8rem; font-weight:500}
+.theme button[aria-pressed="true"]{background:var(--ink); color:var(--bg)}
+.theme button+button{border-left:1px solid var(--rule)}
+@media (max-width:640px){ .hdrbar{flex-direction:column-reverse; align-items:flex-end; gap:10px} .hdrbar h1{width:100%} }
+
+main{padding:28px 20px 60px}
 #ctx[hidden] + main{padding-top:64px}
 .intro{display:grid; grid-template-columns:1.2fr 1fr; gap:32px; align-items:start}
 .intro p{max-width:60ch}
@@ -147,15 +176,17 @@ select{background:var(--paper); border:1px solid var(--rule); border-radius:6px;
 #ctx details{
   border:1px solid var(--rule); border-left:4px solid var(--muted); border-radius:3px;
   background:linear-gradient(0deg,color-mix(in srgb,var(--muted) 7%,transparent),color-mix(in srgb,var(--muted) 7%,transparent));
-  padding:12px 16px 14px; margin:6px 0 4px;
+  padding:9px 16px 10px; margin:14px 0 4px;
 }
+#ctx details[open]{padding-bottom:14px}
+#ctx details:not([open]) summary{gap:4px 10px}
 #ctx summary{cursor:pointer; display:flex; flex-wrap:wrap; gap:6px 16px; align-items:baseline; list-style:none}
 #ctx summary::-webkit-details-marker{display:none}
 #ctx summary::before{content:"+"; font-weight:600; width:1ch; color:var(--muted)}
 #ctx details[open] summary::before{content:"−"}
 .ctx-kicker{
-  display:block; font-size:.68rem; letter-spacing:.11em; text-transform:uppercase;
-  font-weight:600; color:var(--muted); margin-bottom:7px;
+  font-size:.66rem; letter-spacing:.09em; text-transform:uppercase;
+  font-weight:600; color:var(--muted); opacity:.8; white-space:nowrap;
 }
 .ctx-t{font-family:var(--serif); font-weight:650; font-size:1.1rem; font-style:italic}
 .ctx-gov{color:var(--muted); font-size:.93rem}
@@ -167,6 +198,11 @@ select{background:var(--paper); border:1px solid var(--rule); border-radius:6px;
 .ctx-cols p{font-size:.9rem; line-height:1.58; color:var(--muted)}
 .ctx-foot{margin-top:12px; font-size:.78rem; color:var(--muted); font-style:italic; opacity:.9}
 @media (max-width:860px){ .ctx-cols{grid-template-columns:1fr; gap:14px} }
+
+/* avertissement de changement de source à l'intérieur d'une page */
+.srcflag{font-size:.8rem; line-height:1.5; color:var(--muted); margin:0 0 10px; padding:8px 11px;
+ border-left:3px solid var(--coll); background:color-mix(in srgb,var(--coll) 9%,transparent); border-radius:2px}
+.srcflag b{color:var(--ink); font-weight:600}
 
 /* forage mission -> programme -> action */
 .drill{margin-top:6px; border-top:1px solid var(--rule)}
@@ -363,7 +399,12 @@ footer a{color:inherit}
 <body>
 <header class="top">
   <div class="wrap">
-    <h1>Les comptes publics de la France</h1>
+    <div class="hdrbar">
+      <h1>Les comptes publics de la France</h1>
+      <div class="theme" id="theme" role="group" aria-label="Thème d'affichage">
+        <button data-t="auto" aria-pressed="true" title="Suivre le réglage du système">Auto</button><button data-t="light" aria-pressed="false" title="Thème clair">Clair</button><button data-t="dark" aria-pressed="false" title="Thème sombre">Sombre</button>
+      </div>
+    </div>
     <p class="lede">L'argent public passe par trois budgets distincts, votés et gérés séparément : celui de l'État, celui de la Sécurité sociale et ceux des collectivités territoriales. Choisissez une année pour voir d'où vient l'argent, où il va, et ce qui manque.</p>
     <div class="years" id="years" role="group" aria-label="Année"></div>
     <div class="units" id="units" role="group" aria-label="Unité d'affichage"><span class="lbl">Afficher en</span>
@@ -612,8 +653,10 @@ function fillDrill(id){
  const progs=[].concat(...rows.map(m=>m.progs)).sort((a,b)=>b.v[2]-a.v[2]);
  const tot=progs.reduce((a,p)=>a+p.v[2],0), scale=Math.max(...progs.map(p=>p.v[2]));
  const open=state.drill;
- host.innerHTML=`<h4 style="margin:18px 0 2px;font-size:.95rem">Composition de ce budget (PLF 2026)</h4>
-  <p class="note" style="margin:0 0 8px">${rows.length>1?'Missions':'Mission'} « ${rows.map(r=>esc(r.m)).join(' » et « ')} » : ${fmt(tot)} Md€ répartis en ${progs.length} programmes. Cliquez sur un programme pour voir ses actions.</p>
+ const off=state.year<2024||state.year>2026;
+ host.innerHTML=`<h4 style="margin:18px 0 2px;font-size:.95rem">Composition détaillée de ce budget</h4>
+  <div class="srcflag"><b>Source différente de celle du graphique ci-dessus.</b> Ce détail provient du budget voté, exercice par exercice : ${PLF_LAB.join(', ')}.${off?` Il ne suit pas l'année ${state.year} sélectionnée en haut de page — ces trois exercices sont les seuls publiés à ce niveau de finesse.`:''}</div>
+  <p class="note" style="margin:0 0 8px">${rows.length>1?'Missions':'Mission'} « ${rows.map(r=>esc(r.m)).join(' » et « ')} » : ${fmt(tot)} Md€ au PLF 2026, répartis en ${progs.length} programmes. Cliquez sur un programme pour voir ses actions.</p>
   <div class="drill">${progs.map(p=>{
     const isOpen=open===String(p.num);
     let html=drillRow(p.p,'Programme '+p.num,p.v,scale,true,isOpen,p.num);
@@ -1127,7 +1170,7 @@ const COFOG=[
  ['Environnement',0.8,1.0,false,"Déchets, eaux usées, biodiversité."]
 ];
 /* ---------- connexion aux sources API : OFGL (collectivités) et Eurostat (Europe) ---------- */
-const LIVE={coll:{status:'idle',at:null,years:[],errMsg:''},eu:{status:'idle',at:null,cofog:false,errMsg:''},
+const LIVE={coll:{status:'idle',at:null,years:[],errMsg:''},eu:{status:'idle',at:null,cofog:false,agg:null,errMsg:''},
  plf:{status:'idle',at:null,errMsg:''},macro:{status:'idle',at:null,errMsg:''}};
 function liveSet(arr,i,raw){ if(i<0||raw==null||!isFinite(raw)) return; const r=RAWOF.get(arr); if(r){ r[i]=raw; arr[i]=conv(raw,i); } else arr[i]=raw; }
 function fetchJSON(url,ms=20000){ return fetch(url,{signal:window.AbortSignal&&AbortSignal.timeout?AbortSignal.timeout(ms):undefined}).then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); }); }
@@ -1224,22 +1267,6 @@ async function refreshColl(){
 /* -- Eurostat : agrégats des administrations publiques (gov_10a_main, gov_10dd_edpt1) et COFOG (gov_10a_exp) -- */
 const EU_GEO={FR:'FR',DE:'DE',IT:'IT',ES:'ES',NL:'NL',BE:'BE',AT:'AT',FI:'FI',SE:'SE',DK:'DK',PT:'PT',EL:'EL',PL:'PL',ZE:'EA20',UE:'EU27_2020'};
 const COFOG_CODES={GF01:'Services généraux',GF02:'Défense',GF03:'Ordre et sécurité publics',GF04:'Affaires économiques',GF05:'Environnement',GF06:'Logement et équipements collectifs',GF07:'Santé',GF08:'Loisirs, culture, cultes',GF09:'Enseignement',GF10:'Protection sociale'};
-async function eurostatCsv(dataflow,key){
- const url='https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/'+dataflow+'/1.0/'+key+'?format=csvdata&formatVersion=2.0&lang=fr';
- return csvObjects(await fetchText(url,25000));
-}
-async function eurostatCsvRetry(dataflow,key,attempts=3){
- let lastErr;
- for(let a=0;a<attempts;a++){
-  try{
-   const rows=await eurostatCsv(dataflow,key);
-   if(rows.length) return rows;
-   lastErr=new Error('réponse vide');
-  }catch(err){ lastErr=err; }
-  if(a<attempts-1) await new Promise(r=>setTimeout(r,700*(a+1)));
- }
- throw lastErr;
-}
 /* limite le nombre de requêtes simultanées vers ec.europa.eu pour éviter les réponses tronquées sous forte charge */
 function mapLimit(items,limit,fn){
  return new Promise((resolve,reject)=>{
@@ -1255,16 +1282,18 @@ function mapLimit(items,limit,fn){
   for(let k=0;k<Math.min(limit,items.length);k++) next();
  });
 }
-function byGeoYear(rows){ const m={}; for(const r of rows){ const v=r.OBS_VALUE; if(v===''||v==null) continue; (m[r.geo]||(m[r.geo]={}))[r.TIME_PERIOD]=+v; } return m; }
+/* Les quatre agrégats tiennent en deux requêtes filtrées par pays : même forme que les appels
+   macro et COFOG, la seule qui passe de façon fiable depuis un navigateur, et un volume bien moindre. */
+function byGeoItemYear(rows){ const m={}; for(const r of rows){ const v=r.OBS_VALUE; if(v===''||v==null) continue;
+ const k=r.na_item||'GD'; (m[k]||(m[k]={})); (m[k][r.geo]||(m[k][r.geo]={}))[r.TIME_PERIOD]=+v; } return m; }
 async function fetchEurostatEU(){
- const jobs=[
-  ['gov_10a_main','A.PC_GDP.S13.B9'],
-  ['gov_10a_main','A.PC_GDP.S13.TE'],
-  ['gov_10a_main','A.PC_GDP.S13.TR'],
-  ['gov_10dd_edpt1','A.PC_GDP.S13.GD']
- ];
- const [b9,te,tr,gd]=await mapLimit(jobs,3,([df,key])=>eurostatCsvRetry(df,key));
- const B9=byGeoYear(b9), TE=byGeoYear(te), TR=byGeoYear(tr), GD=byGeoYear(gd);
+ const geos=Object.values(EU_GEO).join(',');
+ const [main,debt]=await mapLimit([
+  ['gov_10a_main','A.PC_GDP.S13',{geo:geos,na_item:'B9,TE,TR'}],
+  ['gov_10dd_edpt1','A.PC_GDP.S13.GD',{geo:geos}]
+ ],2,([df,key,f])=>eurostatQRetry(df,key,f));
+ const M=byGeoItemYear(main), D=byGeoItemYear(debt);
+ const B9=M.B9||{}, TE=M.TE||{}, TR=M.TR||{}, GD=D.GD||Object.values(D)[0]||{};
  let applied=0;
  for(const c of EU.c){
   const geo=EU_GEO[c.id]; if(!geo) continue;
@@ -1281,9 +1310,16 @@ async function refreshEurope(){
  if(LIVE.eu.status==='loading') return;
  LIVE.eu.status='loading'; if(state.tab==='eu') renderEurope();
  try{
-  const [applied,cofogOk]=await Promise.all([fetchEurostatEU(),fetchCofogTree().catch(()=>false)]);
-  if(!applied) throw new Error('aucune donnée reçue');
-  LIVE.eu.status='ok'; LIVE.eu.at=new Date(); LIVE.eu.cofog=cofogOk;
+  /* les deux moitiés sont indépendantes : l'échec de l'une ne doit pas masquer la réussite de l'autre */
+  let applied=0, err1=null;
+  const [a,cofogOk]=await Promise.all([
+   fetchEurostatEU().catch(e=>{ err1=e; return 0; }),
+   fetchCofogTree().catch(()=>false)
+  ]);
+  applied=a;
+  if(!applied&&!cofogOk) throw err1||new Error('aucune donnée reçue');
+  LIVE.eu.status='ok'; LIVE.eu.at=new Date(); LIVE.eu.cofog=cofogOk; LIVE.eu.agg=!!applied;
+  LIVE.eu.errMsg=applied?'':(err1&&err1.message)||'';
  }catch(err){ LIVE.eu.status='err'; LIVE.eu.errMsg=(err&&err.message)||'erreur réseau'; }
  if(state.tab==='eu') renderEurope();
 }
@@ -1372,7 +1408,7 @@ async function refreshMacro(){
  LIVE.macro.status='loading';
  try{ await fetchMacro(); LIVE.macro.status='ok'; LIVE.macro.at=new Date(); }
  catch(err){ LIVE.macro.status='err'; LIVE.macro.errMsg=(err&&err.message)||'erreur réseau'; }
- render();
+ safeRender();
 }
 
 /* -- data.economie.gouv.fr : PLF 2026 « budget vert » : crédits par mission, programme et action, et dépenses fiscales -- */
@@ -1430,13 +1466,13 @@ function buildMissions(){
 }
 async function refreshPLF(){
  if(LIVE.plf.status==='loading') return;
- LIVE.plf.status='loading'; render();
+ LIVE.plf.status='loading'; safeRender();
  try{
   const [progs]=await Promise.all([fetchPLFProgs(),fetchPLFNiches()]);
   PLF.progs=progs; buildMissions(); PLF.loaded=true;
   LIVE.plf.status='ok'; LIVE.plf.at=new Date();
  }catch(err){ LIVE.plf.status='err'; LIVE.plf.errMsg=(err&&err.message)||'erreur réseau'; }
- render();
+ safeRender();
 }
 const LIVE_SRC={coll:"l'API OFGL (communes, intercommunalités, départements, régions)",eu:"l'API Eurostat",
  plf:"l'API du budget de l'État (data.economie.gouv.fr)",macro:"l'API Eurostat (indicateurs macroéconomiques)"};
@@ -1448,7 +1484,7 @@ function liveBadgeHtml(kind){
   msg=kind==='coll'
    ?('Connecté à '+src+'. Années actualisées en direct depuis data.ofgl.fr : '+L.years[0]+'–'+L.years[L.years.length-1]+'. Années antérieures : reconstituées. Mise à jour '+h+'.')
    :kind==='eu'
-   ?('Connecté à '+src+' (ec.europa.eu). Mise à jour '+h+'.'+(L.cofog?' Dépenses par fonction : hiérarchie complète, sous-fonctions comprises.':' Dépenses par fonction (COFOG) : repli sur les données de secours.'))
+   ?('Connecté à '+src+' (ec.europa.eu). Mise à jour '+h+'.'+(L.agg===false?' Agrégats par pays : repli sur les données de secours.':'')+(L.cofog?' Dépenses par fonction : hiérarchie complète, sous-fonctions comprises.':' Dépenses par fonction (COFOG) : repli sur les données de secours.'))
    :kind==='plf'
    ?("Connecté à "+src+" : annexe « budget vert » du PLF 2026 — exécution 2024, LFI 2025 et PLF 2026, jusqu'au niveau de l'action. Mise à jour "+h+".")
    :("Indicateurs repris d'Eurostat (PIB, inflation, chômage, taux à 10 ans). Mise à jour "+h+".");
@@ -1752,7 +1788,7 @@ function simUpdate(first){
 }
 
 /* ---------- state ---------- */
-const state={year:2025,tab:'overview',compare:2007,sel:null,pensions:false,ctxOpen:true,unit:'cur',euInd:'def',euYear:null,sim:null,skPens:false,mcat:'all',msel:null,mgroup:'list',mwho:null,dmode:'stock',drill:null,cofogOpen:null};
+const state={year:2025,tab:'overview',compare:2007,sel:null,pensions:false,ctxOpen:false,unit:'cur',euInd:'def',euYear:null,sim:null,skPens:false,mcat:'all',msel:null,mgroup:'list',mwho:null,dmode:'stock',drill:null,cofogOpen:null};
 let chart=null;
 const yi=()=>YEARS.indexOf(state.year);
 const ci=()=>YEARS.indexOf(state.compare);
@@ -1795,11 +1831,53 @@ function renderYears(){
  el.querySelectorAll('.step').forEach(b=>b.onclick=()=>setYear(state.year+ +b.dataset.step));
  syncYears();
 }
-const TABS=[['overview','Vue d\'ensemble',null],['etat','Budget de l\'État','--etat'],['secu','Sécurité sociale','--secu'],['coll','Collectivités territoriales','--coll'],['retr','Retraites','--retr'],['dette','Dette','--dette'],['mes','Mesures phares','--ink'],['niches','Niches fiscales','--coll'],['ope','Opérateurs','--etat'],['sim','Simulateur','--dette'],['eu','Europe','--etat'],['src','Sources','--muted']];
+/* quatre vues principales (avec le montant de l'année affichée en sous-titre), puis les vues thématiques */
+const TABS=[
+ ['overview',"Vue d'ensemble",null,1],
+ ['etat',"Budget de l'État",'--etat',1],
+ ['secu','Sécurité sociale','--secu',1],
+ ['coll','Collectivités territoriales','--coll',1],
+ ['retr','Retraites','--retr',0],['dette','Dette','--dette',0],['mes','Mesures phares','--ink',0],
+ ['niches','Niches fiscales','--coll',0],['ope','Opérateurs','--etat',0],['sim','Simulateur','--dette',0],
+ ['eu','Europe','--etat',0],['src','Sources','--muted',0]];
+/* sous-titre d'un onglet principal : masse du budget concerné pour l'année choisie */
+function tabSub(k){
+ try{
+  const i=yi();
+  if(k==='overview') return 'Déficit '+fmt(Math.abs(APU.deficit[i]),1)+' % du PIB';
+  const b=DATA[k]; if(!b) return '';
+  return fmtU(b.depTotal[i],0)+' '+UL()+' de dépenses';
+ }catch(e){ return ''; }
+}
 function renderTabs(){
  const el=document.getElementById('tabs');
- el.innerHTML=TABS.map(([k,l,c])=>`<button class="tab" role="tab" aria-selected="${state.tab===k}" data-k="${k}" style="${c?`--tabc:var(${c})`:''}">${l}</button>`).join('');
- el.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{state.tab=b.dataset.k; state.sel=null; renderTabs(); render();});
+ const main=TABS.filter(t=>t[3]), more=TABS.filter(t=>!t[3]);
+ el.innerHTML=
+  `<div class="tabs-main" role="tablist" aria-label="Vues principales">${main.map(([k,l,c])=>{
+    const sub=tabSub(k);
+    return `<button class="tab-m" role="tab" aria-selected="${state.tab===k}" data-k="${k}" style="${c?`--tabc:var(${c})`:''}">${l}${sub?`<small>${sub}</small>`:''}</button>`;
+   }).join('')}</div>`
+  +`<div class="tabs-more" role="tablist" aria-label="Vues thématiques"><span class="lbl">Approfondir</span>${more.map(([k,l,c])=>
+    `<button class="tab-s" role="tab" aria-selected="${state.tab===k}" data-k="${k}" style="${c?`--tabc:var(${c})`:''}">${l}</button>`).join('')}</div>`;
+ el.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{
+  state.tab=b.dataset.k; state.sel=null; state.drill=null; renderTabs(); render();
+  const t=document.getElementById('tabs');
+  if(t.getBoundingClientRect().top<0) window.scrollTo({top:t.offsetTop-8,behavior:'smooth'});
+ });
+}
+
+/* ---------- thème clair / sombre ---------- */
+function applyTheme(t){
+ const r=document.documentElement;
+ if(t==='auto') r.removeAttribute('data-theme'); else r.setAttribute('data-theme',t);
+ document.querySelectorAll('#theme [data-t]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.t===t));
+ try{ localStorage.setItem('cp-theme',t); }catch(e){}
+}
+function initTheme(){
+ let t='auto';
+ try{ t=localStorage.getItem('cp-theme')||'auto'; }catch(e){}
+ applyTheme(t);
+ document.querySelectorAll('#theme [data-t]').forEach(b=>b.onclick=()=>applyTheme(b.dataset.t));
 }
 
 /* ---------- the balance ---------- */
@@ -1985,7 +2063,20 @@ function yearAt(e,ch){
 }
 const labels=()=>YEARS.map(y=>STATUS[y]==='prévision'?y+' (prév.)':String(y));
 const pointSizes=()=>YEARS.map(y=>y===state.year?6:2.5);
-function setChart(cfg){ if(chart){ try{ chart.destroy(); }catch(err){} } chart=new Chart(document.getElementById('c'),cfg); }
+/* La bibliothèque de graphiques vient d'un CDN : si elle manque (réseau filtré, hors ligne),
+   la page doit rester entièrement lisible — les chiffres sont dans le texte et les tableaux. */
+function setChart(cfg){
+ if(chart){ try{ chart.destroy(); }catch(err){} chart=null; }
+ const cv=document.getElementById('c'); if(!cv) return;
+ if(typeof Chart==='undefined'){
+  const box=cv.closest('.chartwrap')||cv.parentElement;
+  if(box&&!box.querySelector('.nochart')) box.insertAdjacentHTML('beforeend',
+   '<p class="note nochart" style="padding:14px 2px">Le graphique n\'a pas pu être chargé (bibliothèque externe indisponible). Les chiffres restent lisibles dans le texte et les tableaux ci-dessous.</p>');
+  cv.style.display='none'; return;
+ }
+ cv.style.display='';
+ try{ chart=new Chart(cv,cfg); }catch(err){ chart=null; }
+}
 
 function drawApu(){
  const o=baseOpts();
@@ -2175,7 +2266,7 @@ function renderCtx(){
  const y=state.year, i=yi(), c=CTX[y], el=document.getElementById('ctx');
  const st=y===2026?' (prévisions)':y===2025?' (estimations)':'';
  const m=[['Croissance du PIB',signed(MACRO.g[i])+' %'],['Inflation',fmt(MACRO.inf[i])+' %'],['Taux de chômage',fmt(MACRO.ch[i])+' %'],['Taux d\'emprunt à 10 ans',fmt(MACRO.oat[i])+' %']];
- el.innerHTML=`<details ${state.ctxOpen?'open':''}><summary><span style="flex:1 1 100%"><span class="ctx-kicker">Repères de l'année — cadre de lecture, pas un chiffre du budget</span></span><span class="ctx-t">Contexte ${y}</span><span class="ctx-gov">${c.gov}</span></summary>
+ el.innerHTML=`<details ${state.ctxOpen?'open':''}><summary><span class="ctx-t">Contexte ${y}</span><span class="ctx-gov">${c.gov}</span><span class="ctx-kicker">Cadre de lecture, pas un chiffre du budget</span></summary>
   <div class="ctx-macro">${m.map(([l,v])=>`<div><b>${v}</b>${l}</div>`).join('')}<div style="align-self:end">${st?'Chiffres macroéconomiques'+st:''}</div></div>
   <div class="ctx-cols"><div><h4>Politique et société</h4><p>${c.pol}</p></div><div><h4>Économie</h4><p>${c.eco}</p></div><div><h4>International</h4><p>${c.geo}</p></div></div>
   ${(()=>{const seen={}; const ps=PROG_LIST.filter(p=>y>=p.y0&&y<=p.y1&&!seen[p.tag]&&(seen[p.tag]=1)); return ps.length?`<div class="ctx-prog"><span class="muted">Programmations pluriannuelles en cours, qui expliquent des hausses ou baisses décidées à l'avance :</span>${ps.map(p=>`<button class="chip" data-key="${p.key}">${p.tag}${p.vote===y?' (votée cette année)':''}</button>`).join('')}</div>`:'';})()}
@@ -2494,6 +2585,7 @@ function setUnit(u){
  document.getElementById('unitnote').textContent=u==='const'?"Montants corrigés de l'inflation (prix à la consommation), en euros de 2025.":u==='pib'?"Chaque montant est rapporté au PIB de son année : 1 point de PIB vaut environ 30 Md€ en 2025.":'';
  render();
 }
+function safeRender(){ try{ render(); }catch(e){ /* le rendu ne doit pas interrompre un chargement */ } }
 function render(){
  const NOTE={eu:"Sur l'onglet Europe, les données comparables entre pays portent sur 2022 à 2025 (dernière notification Eurostat) : le choix de l'année et de l'unité ne s'y applique pas.",
   niches:"Cet onglet présente les dernières données disponibles (2024 à 2026) : le choix de l'année et de l'unité ne s'y applique pas.",
@@ -2503,6 +2595,7 @@ function render(){
  const fixed=!!NOTE[state.tab];
  document.getElementById('years').hidden=fixed; document.getElementById('units').hidden=fixed;
  const en=document.getElementById('eunote'); en.hidden=!fixed; if(fixed) en.textContent=NOTE[state.tab]; document.getElementById('ctx').hidden=fixed;
+ renderTabs();  /* les sous-titres des onglets portent des montants : ils doivent suivre l'année et l'unité */
  renderCtx();
  if(state.tab==='overview') renderOverview();
  else if(state.tab==='retr') renderRetraites();
@@ -2521,21 +2614,37 @@ function appendStrip(){
  vw.insertAdjacentHTML('beforeend',relStrip(state.tab));
  vw.querySelectorAll('.relstrip [data-src]').forEach(bn=>bn.onclick=()=>{const k=bn.dataset.src; state.tab='src'; renderTabs(); render(); const el=k!=='all'&&document.getElementById('src-'+k); (el||document.getElementById('tabs')).scrollIntoView({behavior:'smooth'});});
 }
-renderOverview=(f=>function(){f(); appendStrip();})(renderOverview);
-renderBudget=(f=>function(k){f(k); if(k==='coll'){ document.getElementById('view').insertAdjacentHTML('afterbegin',liveBadgeHtml('coll')); document.getElementById('view').insertAdjacentHTML('beforeend',collLevelsHtml()); if(LIVE.coll.status==='idle') refreshColl(); } if(k==='etat'){ document.getElementById('view').insertAdjacentHTML('afterbegin',liveBadgeHtml('plf')); if(LIVE.plf.status==='idle') refreshPLF(); } appendStrip();})(renderBudget);
-renderRetraites=(f=>function(){f(); appendStrip();})(renderRetraites);
-renderMesures=(f=>function(){f(); appendStrip();})(renderMesures);
-renderDette=(f=>function(){f(); appendStrip();})(renderDette);
-renderEurope=(f=>function(){f(); document.getElementById('view').insertAdjacentHTML('afterbegin',liveBadgeHtml('eu')); if(LIVE.eu.status==='idle') refreshEurope(); appendStrip();})(renderEurope);
-renderNiches=(f=>function(){f(); document.getElementById('view').insertAdjacentHTML('afterbegin',liveBadgeHtml('plf')); if(LIVE.plf.status==='idle') refreshPLF(); appendStrip();})(renderNiches);
-renderOperateurs=(f=>function(){f(); appendStrip();})(renderOperateurs);
-renderSim=(f=>function(){f(); appendStrip();})(renderSim);
+/* Les compléments (bandeau de source, chargement des données en direct, bandeau de fiabilité) sont
+   placés dans un finally : une erreur de rendu d'un graphique ne doit pas empêcher les données
+   de se charger ni la page de rester lisible. */
+function after(fn){ try{ fn(); }catch(e){ /* un complément qui échoue ne casse pas la page */ } }
+renderOverview=(f=>function(){ try{ f(); } finally { after(appendStrip); } })(renderOverview);
+renderBudget=(f=>function(k){ try{ f(k); } finally {
+ after(()=>{ if(k==='coll'){ const v=document.getElementById('view');
+   v.insertAdjacentHTML('afterbegin',liveBadgeHtml('coll')); v.insertAdjacentHTML('beforeend',collLevelsHtml());
+   if(LIVE.coll.status==='idle') refreshColl(); } });
+ after(()=>{ if(k==='etat'&&LIVE.plf.status==='idle') refreshPLF(); });
+ after(appendStrip); } })(renderBudget);
+renderRetraites=(f=>function(){ try{ f(); } finally { after(appendStrip); } })(renderRetraites);
+renderMesures=(f=>function(){ try{ f(); } finally { after(appendStrip); } })(renderMesures);
+renderDette=(f=>function(){ try{ f(); } finally { after(appendStrip); } })(renderDette);
+renderEurope=(f=>function(){ try{ f(); } finally {
+ after(()=>{ document.getElementById('view').insertAdjacentHTML('afterbegin',liveBadgeHtml('eu'));
+  if(LIVE.eu.status==='idle') refreshEurope(); });
+ after(appendStrip); } })(renderEurope);
+renderNiches=(f=>function(){ try{ f(); } finally {
+ after(()=>{ document.getElementById('view').insertAdjacentHTML('afterbegin',liveBadgeHtml('plf'));
+  if(LIVE.plf.status==='idle') refreshPLF(); });
+ after(appendStrip); } })(renderNiches);
+renderOperateurs=(f=>function(){ try{ f(); } finally { after(appendStrip); } })(renderOperateurs);
+renderSim=(f=>function(){ try{ f(); } finally { after(appendStrip); } })(renderSim);
 
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>render());
 new MutationObserver(()=>render()).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 state.compare=2007;
 registerSeries();
 document.querySelectorAll('#units [data-u]').forEach(b=>b.onclick=()=>setUnit(b.dataset.u));
+initTheme();
 renderYears(); renderTabs(); render();
 refreshMacro();
 </script>
