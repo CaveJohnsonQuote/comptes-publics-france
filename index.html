@@ -1140,14 +1140,42 @@ async function eurostatCsv(dataflow,key){
  const url='https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/'+dataflow+'/1.0/'+key+'?format=csvdata&formatVersion=2.0&lang=fr';
  return csvObjects(await fetchText(url,25000));
 }
+async function eurostatCsvRetry(dataflow,key,attempts=3){
+ let lastErr;
+ for(let a=0;a<attempts;a++){
+  try{
+   const rows=await eurostatCsv(dataflow,key);
+   if(rows.length) return rows;
+   lastErr=new Error('réponse vide');
+  }catch(err){ lastErr=err; }
+  if(a<attempts-1) await new Promise(r=>setTimeout(r,700*(a+1)));
+ }
+ throw lastErr;
+}
+/* limite le nombre de requêtes simultanées vers ec.europa.eu pour éviter les réponses tronquées sous forte charge */
+function mapLimit(items,limit,fn){
+ return new Promise((resolve,reject)=>{
+  const results=new Array(items.length); let idx=0, active=0, failed=false;
+  function next(){
+   if(failed) return;
+   if(idx>=items.length){ if(active===0) resolve(results); return; }
+   const i=idx++; active++;
+   Promise.resolve(fn(items[i],i)).then(r=>{ results[i]=r; active--; next(); })
+    .catch(err=>{ if(!failed){ failed=true; reject(err); } });
+  }
+  if(!items.length) return resolve(results);
+  for(let k=0;k<Math.min(limit,items.length);k++) next();
+ });
+}
 function byGeoYear(rows){ const m={}; for(const r of rows){ const v=r.OBS_VALUE; if(v===''||v==null) continue; (m[r.geo]||(m[r.geo]={}))[r.TIME_PERIOD]=+v; } return m; }
 async function fetchEurostatEU(){
- const [b9,te,tr,gd]=await Promise.all([
-  eurostatCsv('gov_10a_main','A.PC_GDP.S13.B9'),
-  eurostatCsv('gov_10a_main','A.PC_GDP.S13.TE'),
-  eurostatCsv('gov_10a_main','A.PC_GDP.S13.TR'),
-  eurostatCsv('gov_10dd_edpt1','A.PC_GDP.S13.GD')
- ]);
+ const jobs=[
+  ['gov_10a_main','A.PC_GDP.S13.B9'],
+  ['gov_10a_main','A.PC_GDP.S13.TE'],
+  ['gov_10a_main','A.PC_GDP.S13.TR'],
+  ['gov_10dd_edpt1','A.PC_GDP.S13.GD']
+ ];
+ const [b9,te,tr,gd]=await mapLimit(jobs,3,([df,key])=>eurostatCsvRetry(df,key));
  const B9=byGeoYear(b9), TE=byGeoYear(te), TR=byGeoYear(tr), GD=byGeoYear(gd);
  let applied=0;
  for(const c of EU.c){
@@ -1163,7 +1191,7 @@ async function fetchEurostatEU(){
 }
 async function fetchCOFOG(){
  const codes=Object.keys(COFOG_CODES);
- const results=await Promise.all(codes.map(code=>eurostatCsv('gov_10a_exp','A.PC_GDP.S13.'+code+'.TE')));
+ const results=await mapLimit(codes,3,code=>eurostatCsvRetry('gov_10a_exp','A.PC_GDP.S13.'+code+'.TE'));
  const vals={};
  codes.forEach((code,idx)=>{
   const rows=results[idx];
