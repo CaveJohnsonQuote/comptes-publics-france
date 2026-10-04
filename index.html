@@ -354,6 +354,7 @@ select{background:var(--paper); border:1px solid var(--rule); border-radius:6px;
 .bilgrid{display:grid; grid-template-columns:minmax(260px,330px) minmax(0,1fr); gap:36px; align-items:start; margin-top:26px}
 #bil-form{background:var(--paper); border:1px solid var(--rule); border-radius:10px; padding:16px 18px}
 .bilfoyer{display:flex; flex-wrap:wrap; gap:6px}
+.bilprofils{display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-top:18px; font-size:.92rem}
 .bilfs{border:0; border-top:1px solid var(--rule); margin:16px 0 0; padding:10px 0 0; min-width:0}
 .bilfs legend{font-family:var(--serif); font-weight:650; font-size:1.05rem; padding:0 8px 0 0}
 #bil-form label{display:block; font-size:.86rem; color:var(--muted); margin:10px 0 4px}
@@ -363,12 +364,16 @@ select{background:var(--paper); border:1px solid var(--rule); border-radius:6px;
 #bil-form .bilchk input{margin-top:3px; accent-color:var(--etat)}
 .casrow{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.3fr) 104px; gap:12px; align-items:center; padding:7px 0; border-top:1px solid var(--rule); font-size:.93rem}
 .casrow.niveau .casl{font-weight:600}
-.casrow.moins .casl{color:var(--muted); padding-left:1em}
+.casrow.moins .casl, .casrow.plus .casl{color:var(--muted); padding-left:1em}
 .cast{position:relative; height:16px}
 .cast i{position:absolute; top:0; height:16px; border-radius:3px; background:var(--ink); transition:left .3s ease, width .3s ease}
 .casrow.moins .cast i{background:var(--etat)}
+.casrow.plus .cast i{background:var(--surplus)}
+.casrow.ou .cast i{background:var(--etat)}
+.casrow.ou .casl small{font-size:.8rem; white-space:nowrap}
+.prec.p-estimation{border-color:var(--dette); color:var(--dette)}
 .casrow b{text-align:right; font-variant-numeric:tabular-nums; font-weight:600}
-.casrow.moins b{font-weight:500}
+.casrow.moins b, .casrow.plus b{font-weight:500}
 .bilcols{display:grid; grid-template-columns:1fr 1fr; gap:32px; margin-top:34px; align-items:start}
 .mrow.billine{grid-template-columns:minmax(0,1fr) 104px; font:inherit; color:inherit}
 .prec{display:inline-block; font-size:.72rem; font-weight:600; padding:1px 7px; border-radius:999px; border:1.5px solid var(--muted); color:var(--muted); margin-left:6px; white-space:nowrap; vertical-align:1px}
@@ -385,6 +390,22 @@ select{background:var(--paper); border:1px solid var(--rule); border-radius:6px;
 @media (max-width:860px){ .bilgrid{grid-template-columns:1fr} .bilcols{grid-template-columns:1fr} }
 @media (max-width:560px){ .casrow{grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr) 90px; gap:8px}
  #src-bareme{font-size:.8rem} #src-bareme thead th:nth-child(1){width:30%} #src-bareme thead th:nth-child(2){width:20%} #src-bareme thead th:nth-child(3){width:22%} #src-bareme thead th:nth-child(4){width:28%} }
+/* étape 2 : enfants, garde, dépenses */
+.bilenf{border-top:1px solid var(--rule); padding:10px 0 4px}
+.bilenf:first-child{border-top:0; padding-top:2px}
+.bilenf-t{display:grid; grid-template-columns:minmax(0,1fr) 72px auto; gap:8px; align-items:center}
+.bilenf-t label{margin:0}
+.bilenf-t input{width:100%}
+.bilenf-x{font:inherit; font-size:.8rem; color:var(--muted); background:none; border:1px solid var(--rule); border-radius:999px; padding:4px 10px; cursor:pointer}
+.bilenf-x:hover, .bilenf-x:focus-visible{color:var(--ink); border-color:var(--ink)}
+.bilenf-g{margin-top:8px}
+.bilenf-gd{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:10px; margin-top:8px}
+.bilenf-gd span{display:block; min-width:0}
+.bilenf-gd input{width:100%}
+#bil-enf-add{margin-top:10px}
+#bil-enf-add:disabled{opacity:.5; cursor:not-allowed}
+#bil-enfants-fs .bilchk{margin-top:12px}
+#bil-qf{max-width:60ch}
 /* onglet « Où va l'argent » */
 .ovagrid{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:32px; align-items:start; margin-top:10px}
 .mrow.ovarow, .mrow.ovasub{grid-template-columns:minmax(0,1.2fr) minmax(0,.9fr) 88px; font:inherit; color:inherit}
@@ -1248,7 +1269,7 @@ const SRC=[
  {id:'coll_niv',tab:'Collectivités',label:"Collectivités par niveau et par taille",status:'verifie',scope:"Épargne, besoin de financement, trésorerie, évolution des dépenses et de l'investissement par niveau, trésorerie des communes par taille : rapport OFGL 2025 (comptes 2024 provisoires). Partage du besoin de financement entre communes et intercommunalités : indicatif.",links:[["Rapport OFGL 2025, vue d'ensemble","https://www.collectivites-locales.gouv.fr/files/files/Etudes-et-statistiques/OFGL/rapport%202025/Rapport%20OFGL%202025%201%20vue%20d%20ensemble.pdf"]]},
  {id:'sim',tab:'Simulateur',label:"Hypothèses du simulateur",status:'reconstitue',scope:"Rendements des leviers (TVA, CSG, IS, âge de départ, indexation, ONDAM, point d'indice…) : ordres de grandeur couramment cités, sans effets de bouclage macroéconomique. Point de départ 2025 vérifié (Insee).",links:[]},
  {id:'europe',tab:'Europe',label:"Comparaisons européennes",status:'verifie',scope:"Depuis la mise en direct de septembre 2026, solde, dépenses, recettes et dette sont recalculés à chaque ouverture de l'onglet via l'API Eurostat (gov_10a_main, gov_10dd_edpt1), avec repli sur la notification d'avril 2026 (2025 provisoire) si l'API est indisponible.",links:[["API Eurostat, agrégats des administrations publiques","https://ec.europa.eu/eurostat/web/products-euro-indicators/w/2-22042026-ap"]]},
- {id:'bil',tab:"Mon bilan",label:"Simulateur personnel : barèmes 2026",status:'partiel',scope:"Première étape : salarié du privé, impôt sur le revenu. Les barèmes sont listés un par un au bas de cette page, avec leur date et leur source. Treize foyers types ont été comparés au modèle public OpenFisca-France : le salaire net, le net imposable et l'impôt concordent à moins de 1 % ou de 20 € par an pour les treize, et les cotisations ligne par ligne en dehors des écarts décrits plus bas. Hypothèses : temps plein toute l'année, entreprise de 50 salariés et plus, taux moyen national d'accidents du travail, hors versement mobilité, prévoyance et mutuelle (le net d'un bulletin de paie réel est donc un peu plus bas) ; le barème d'impôt des revenus 2025 est appliqué aux revenus 2026, le suivant n'étant pas encore voté. Quatre écarts connus avec OpenFisca, où l'outil suit la règle en vigueur. Un : le SMIC de la réduction générale de cotisations patronales est gelé à 12,02 € pour tout 2026, alors qu'OpenFisca applique la hausse de juin ; la réduction est ici plus basse de 305 € par an au plus jusqu'à 65 630 € de salaire (maximum vers 22 400 €) ; entre 65 631 € et 67 214 €, l'outil ne compte aucune réduction, le seuil de trois SMIC étant dépassé, là où OpenFisca en compte jusqu'à 784 €. La formule elle-même a été vérifiée en refaisant le calcul d'OpenFisca mois par mois. Deux : la cotisation de garantie des salaires est de 0,25 % depuis le 1er juillet 2024, taux maintenu pour 2026 (vérifié sur le communiqué de l'AGS), contre 0,2 % dans OpenFisca ; les cotisations patronales sont ici plus hautes de 18 € par an pour un salaire de 36 000 €, et de 96 € au plus. Trois : l'abattement de 10 % va de 509 € à 14 555 € (impots.gouv.fr, revenus 2025), contre 504 € et 14 426 € dans OpenFisca ; l'impôt des très hauts salaires est ici plus bas d'environ 55 €. Quatre : OpenFisca réduit le plafond de la Sécurité sociale en février, ce qui décale les cotisations des salaires supérieurs au plafond : environ 3 € par an sur le net jusqu'à 150 000 € de salaire, 212 € pour 400 000 €. Le côté employeur est simplifié : le taux réel d'accidents du travail et la taille de l'entreprise le font varier. Les barèmes ont été relevés dans OpenFisca et sur des sites professionnels qui citent les textes ; ils n'ont pas tous été relus dans les textes officiels eux-mêmes.",links:[["OpenFisca-France, paramètres de la législation","https://legislation.fr.openfisca.org/"],["impots.gouv.fr, déduction forfaitaire de 10 %","https://www.impots.gouv.fr/particulier/questions/comment-puis-je-beneficier-de-la-deduction-forfaitaire-de-10"],["Gel du SMIC dans la réduction générale (2026)","https://www.legisocial.fr/actualites-sociales/7986-reduction-generale-boss-confirme-gel-parametre-smic-1er-juin-2026.html"],["AGS, maintien du taux de cotisation à 0,25 % en 2026","https://www.ags-garantie-salaires.org/a-la-une/communiques-de-presse/maintien-du-taux-de-cotisations-AGS"]]},
+ {id:'bil',tab:"Mon bilan",label:"Simulateur personnel : barèmes 2026",status:'partiel',scope:"Quatre étapes livrées : salariés du privé et impôt sur le revenu, puis famille (prestations familiales, complément de mode de garde, prime d'activité, avantages fiscaux), puis fonctionnaire, micro-entrepreneur et retraité, enfin consommation et services publics (TVA, carburants, taxe foncière, école, soins, crèche). Les barèmes sont listés un par un au bas de cette page, avec leur date et leur source. Treize foyers types ont été comparés au modèle public OpenFisca-France : le salaire net, le net imposable et l'impôt concordent à moins de 1 % ou de 20 € par an pour les treize, et les cotisations ligne par ligne en dehors des écarts décrits plus bas. Hypothèses : temps plein toute l'année, entreprise de 50 salariés et plus, taux moyen national d'accidents du travail, hors versement mobilité, prévoyance et mutuelle (le net d'un bulletin de paie réel est donc un peu plus bas) ; le barème d'impôt des revenus 2025 est appliqué aux revenus 2026, le suivant n'étant pas encore voté. Quatre écarts connus avec OpenFisca, où l'outil suit la règle en vigueur. Un : le SMIC de la réduction générale de cotisations patronales est gelé à 12,02 € pour tout 2026, alors qu'OpenFisca applique la hausse de juin ; la réduction est ici plus basse de 305 € par an au plus jusqu'à 65 630 € de salaire (maximum vers 22 400 €) ; entre 65 631 € et 67 214 €, l'outil ne compte aucune réduction, le seuil de trois SMIC étant dépassé, là où OpenFisca en compte jusqu'à 784 €. La formule elle-même a été vérifiée en refaisant le calcul d'OpenFisca mois par mois. Deux : la cotisation de garantie des salaires est de 0,25 % depuis le 1er juillet 2024, taux maintenu pour 2026 (vérifié sur le communiqué de l'AGS), contre 0,2 % dans OpenFisca ; les cotisations patronales sont ici plus hautes de 18 € par an pour un salaire de 36 000 €, et de 96 € au plus. Trois : l'abattement de 10 % va de 509 € à 14 555 € (impots.gouv.fr, revenus 2025), contre 504 € et 14 426 € dans OpenFisca ; l'impôt des très hauts salaires est ici plus bas d'environ 55 €. Quatre : OpenFisca réduit le plafond de la Sécurité sociale en février, ce qui décale les cotisations des salaires supérieurs au plafond : environ 3 € par an sur le net jusqu'à 150 000 € de salaire, 212 € pour 400 000 €. Le côté employeur est simplifié : le taux réel d'accidents du travail et la taille de l'entreprise le font varier. Les barèmes ont été relevés dans OpenFisca et sur des sites professionnels qui citent les textes ; ils n'ont pas tous été relus dans les textes officiels eux-mêmes. Famille : dix-sept foyers types, avec ou sans enfants, ont été comparés à OpenFisca. Allocations familiales, allocation de base, complément familial, allocation de rentrée scolaire et prime d'activité concordent à moins de 3 % ou de 30 € par an ; l'impôt après quotient familial, réductions et crédits, à moins de 1 % ou de 20 €. Pour le complément de mode de garde, la formule de septembre 2025 n'est pas dans OpenFisca, qui en est resté à l'ancienne : elle vient du décret n° 2025-515 du 30 mai 2025, non relu (Légifrance refuse l'accès automatique), recoupée sur le webinaire de la Caf de septembre 2025 et sur la fédération des particuliers employeurs ; l'outil retrouve les trois exemples de la Caf à moins de 1 € par mois et les deux exemples de la fédération au centime. Ses valeurs 2026 (coûts horaires de référence, plafonds horaires, plancher de ressources) viennent d'une actualité de l'Urssaf citée par un site professionnel ; ses taux d'effort à partir de trois enfants et son plancher de ressources n'ont été lus que sur des sites professionnels. Choix de l'outil : la majoration pour âge des allocations est accordée de 15 à 19 ans (elle est passée de 14 à 18 ans le 1er mars 2026 pour les enfants qui ont 14 ans après cette date ; décret non relu) ; le forfait logement de la prime d'activité n'est retranché que si la case correspondante est cochée ; la réduction d'impôt pour enfants scolarisés est déduite de l'âge ; les ressources de 2024 que regarde la Caf sont remplacées par les revenus saisis ; les barèmes de fin 2026 sont appliqués sur 12 mois, ce qui surestime un peu la prime d'activité de 2026, revalorisée en avril ; en union libre, les enfants et les avantages fiscaux sont rattachés à l'adulte pour lequel l'impôt total est le plus bas ; l'âge de rattachement d'un enfant majeur s'apprécie au 1er janvier. Quatre cas ont été ajoutés après une relecture indépendante pour contrôler le complément familial dégressif, le seuil de 15 € de l'allocation de rentrée et la limite de 20 % du revenu pour les dons. Reste non contrôlé par OpenFisca : le plafond de déduction de l'épargne retraite. Autres situations : dix-huit foyers types (fonctionnaires de l'État et territoriaux, micro-entrepreneurs des trois activités, retraités aux quatre taux de CSG, foyers mixtes) ont été comparés à OpenFisca. Le net et le net imposable concordent au centime ; les cotisations et le bénéfice imposable du micro-entrepreneur à l'euro ; le taux de CSG des onze retraités est le même ; prestations familiales et prime d'activité concordent à 1 € par an, l'impôt à 12 € près. Cinq barèmes sont ici plus récents que dans OpenFisca. Trois taux d'employeur public : la contribution de l'État aux pensions civiles, 82,28 % en 2026 (décret n° 2025-1341 du 26 décembre 2025, lu sur retraitesdeletat.gouv.fr) contre 78,28 % ; la contribution à la caisse de retraite des agents territoriaux et hospitaliers, 37,65 % (décret n° 2025-86, lu sur le site d'un centre de gestion, décret non relu) contre 34,65 % ; la cotisation maladie de l'employeur territorial, 9,88 % (lue sur le site d'un centre de gestion pour 2025, non relue pour 2026) contre 8,88 %. Le coût pour l'employeur public est donc ici plus haut de 4 % du traitement : 1 000 € par an pour 25 000 € de traitement. Deux barèmes d'impôt : l'abattement de 10 % sur les pensions va de 454 € par pensionné à 4 439 € par foyer (lu sur un site professionnel qui cite le simulateur des impôts ; un autre site écrit 4 438 €), contre 450 € et 4 399 € dans OpenFisca ; l'abattement des 65 ans et plus est de 2 822 € ou 1 411 € selon le revenu (lu sur un site professionnel), contre 2 795 € et 1 398 €. La cotisation maladie de 1 % sur la retraite complémentaire, absente d'OpenFisca, n'a pas été vérifiée dans un texte officiel : son taux vient d'un site professionnel, et sa limitation aux retraités soumis aux taux médian et normal de CSG est écrite de mémoire. Choix de l'outil : le taux de CSG d'un retraité dépend de son revenu fiscal de référence de 2024, inconnu ; la situation étant supposée stable, l'outil retient le taux que confirme le revenu fiscal qu'il produit, en partant de la CSG au taux plein ; dans une bande sous chaque seuil (pour une personne seule de moins de 65 ans sans retraite complémentaire : de 14 499 à 15 071 €, de 19 702 à 19 783 € et de 30 704 à 31 258 € de pension annuelle), aucun taux ne se confirme, la pension passerait d'un taux à l'autre d'une année sur l'autre : le plus bas est retenu et l'écran le signale. Les dix-huit cas types sont tous hors de ces bandes. L'outil n'applique pas la règle de lissage (citée de mémoire, non relue) qui évite de passer à un taux supérieur pour un dépassement ponctuel du seuil ; près d'un seuil, le taux réel peut donc différer, et un euro de pension en plus peut faire baisser le net de plusieurs centaines d'euros. Les prélèvements d'un retraité portent pour cette raison l'étiquette « simplifié ». En union libre avec un retraité, les enfants sont rattachés à la déclaration qui donne le total le plus bas d'impôt et de prélèvements sur la pension. Fonctionnaire : titulaire, toutes les primes soumises à la CSG et, dans la limite de 20 % du traitement, à la retraite additionnelle ; ni indemnité de résidence, ni supplément familial de traitement, ni nouvelle bonification indiciaire ; le versant hospitalier est traité avec les taux territoriaux, sans ses contributions propres. Micro-entrepreneur : taux de droit commun, sans aide à la création d'entreprise ni versement libératoire de l'impôt, activité libérale rattachée au régime général, plafond d'épargne retraite calculé comme pour un salarié ; la contribution à la formation des prestations de services est celle des artisans (0,3 %). Ses dépenses professionnelles sont comptées au forfait fiscal : le revenu disponible part du bénéfice forfaitaire (chiffre d'affaires moins l'abattement fiscal), comme l'impôt et la prime d'activité ; l'outil en déduit des dépenses égales à l'abattement moins les cotisations, alors que les dépenses réelles peuvent être plus hautes ou plus basses. Au-dessus du plafond du régime (203 100 € pour le commerce, 83 600 € pour les services et les activités libérales en 2026, lus sur un site professionnel ; OpenFisca en est resté à 188 700 € et 77 700 €), l'écran avertit que le calcul ne vaut plus. Les pensions nettes comptent dans les ressources de la prime d'activité ; une pension n'ouvre pas droit au complément de mode de garde. Consommation et services publics : ce sont des estimations, non contrôlées par OpenFisca, fondées sur des moyennes publiées dont chaque page a été ouverte le 4 octobre 2026. TVA : l'outil applique à la consommation estimée du foyer un taux unique de 10,7 %, rapport calculé par l'outil entre la TVA acquittée par les ménages (97 260 M€) et leur consommation TVA comprise, loyers imputés exclus (906 705 M€), en 2016 (Insee, Économie et Statistique n° 522-523) ; aucune série par tranche de niveau de vie n'est publiée pour tous les foyers : d'après le Conseil des prélèvements obligatoires (rapport particulier « Les effets redistributifs de la taxe sur la valeur ajoutée », avril 2015, données de 2011), ce rapport va de 9,3 % pour le dixième le plus modeste à 10,6 % pour le plus aisé, loyers compris. La consommation est le revenu disponible, moins la taxe foncière, moins l'épargne ; sans taux saisi, l'épargne est estimée d'après le niveau de vie du foyer : l'outil relie par des droites les taux moyens des cinq cinquièmes, de 2,7 % à 28,4 % (Insee Première n° 1815, données de 2017, cinquièmes de la comptabilité nationale), placés au niveau de vie médian de chaque cinquième (déciles impairs de 2024) ; c'est un calcul de l'outil, qui évite qu'un euro de revenu en plus fasse baisser la TVA en changeant de cinquième. Un foyer réel peut consommer très différemment de cette moyenne. Carburants : accise de 2026 lue dans la circulaire des douanes du 30 septembre 2026 ; le tarif de l'E85 est déduit de deux pages officielles ; la TVA sur les carburants est déjà dans la TVA moyenne. Taxe foncière : montant saisi. Les autres taxes sur la consommation (tabac, alcool, électricité, gaz, assurances) ne sont pas comptées. École : dépense moyenne par élève de 2025 (données provisoires, ministère de l'Éducation nationale, tous financeurs), multipliée par la part des administrations publiques du degré (94,9 %, 88,9 %, 66,7 %), somme calculée par l'outil sur une figure de la même note ; cette part comprend l'allocation de rentrée scolaire, comptée aussi dans les prestations, et les bourses, que l'outil ne calcule pas ; le lycée est compté au coût du lycée général et technologique ; l'année de ses 3 ans, l'enfant est compté 8 mois de crèche et 4 mois d'école, jamais les deux sur les mêmes mois. Soins : aucun barème public par personne et par âge n'a pu être ouvert (celui de la DREES est fermé à la lecture automatique) ; l'outil prend les transferts de santé par unité de consommation selon l'âge de la personne de référence du ménage (Insee Analyses n° 88, données de 2019, non revalorisées alors que les dépenses de santé ont augmenté depuis), en retenant l'âge du plus âgé des adultes : c'est une moyenne par ménage, pas une dépense par personne. Crèche : prix de revient moyen de 13,38 € par heure réalisée en 2024 (Caf), moins ce que paie la famille, appliqué aux heures saisies ; il comprend la part des employeurs qui réservent des places, et les heures facturées dépassant les heures réalisées, le financement public est un peu surestimé. « Où va ce que je verse » applique au total versé la répartition par usage de la dépense publique de 2024 : c'est une clé moyenne, pas un fléchage. Les six foyers d'exemple sont des montants ronds, sauf le SMIC de 2026 et le salaire médian : la moitié des salariés du secteur privé perçoit moins de 2 190 € nets par mois en équivalent temps plein en 2024 (Insee Première n° 2079, page lue), soit environ 33 200 € bruts par an. Hors périmètre : allocation de soutien familial, prestation partagée d'éducation, prime de naissance, allocation forfaitaire des 20 ans, garde alternée, naissances multiples, handicap, aides au logement, cotisations prises en charge par le complément de mode de garde.",links:[["OpenFisca-France, paramètres de la législation","https://legislation.fr.openfisca.org/"],["impots.gouv.fr, déduction forfaitaire de 10 %","https://www.impots.gouv.fr/particulier/questions/comment-puis-je-beneficier-de-la-deduction-forfaitaire-de-10"],["Gel du SMIC dans la réduction générale (2026)","https://www.legisocial.fr/actualites-sociales/7986-reduction-generale-boss-confirme-gel-parametre-smic-1er-juin-2026.html"],["AGS, maintien du taux de cotisation à 0,25 % en 2026","https://www.ags-garantie-salaires.org/a-la-une/communiques-de-presse/maintien-du-taux-de-cotisations-AGS"],["Caf, webinaire sur le complément de mode de garde (septembre 2025)","https://www.caf.fr/sites/default/files/medias/441/partenaires_locaux/webinaires/WebinaireCMG_septembre2025.pdf"],["economie.gouv.fr, prime d'activité","https://www.economie.gouv.fr/particuliers/vie-en-entreprise/prime-dactivite-pouvez-vous-en-beneficier"],["retraitesdeletat.gouv.fr, contribution de l'État employeur aux pensions (2026)","https://retraitesdeletat.gouv.fr/professionnels/le-versement-des-cotisations/les-etablissements-publics-nationaux-ou-organismes"],["Centre de gestion du Doubs, rémunération au 1er janvier 2026 (CNRACL)","https://www.cdg25.org/vient-de-paraitre/remuneration-ce-qui-change-au-1er-janvier-2026/"],["Insee Première n° 2079, les salaires dans le secteur privé en 2024","https://www.insee.fr/fr/statistiques/8657156"],["Conseil des prélèvements obligatoires, « Les effets redistributifs de la taxe sur la valeur ajoutée » (avril 2015)","https://www.ccomptes.fr/sites/default/files/EzPublish/20151216-rapport-Boutchenik-effets-redistributifs-de-la-TVA-.pdf"],["Insee Première n° 1815, épargne par cinquième de niveau de vie (2017)","https://www.insee.fr/fr/statistiques/4764600"],["Insee, distribution des niveaux de vie (2024)","https://www.insee.fr/fr/statistiques/2416808"],["Insee, Économie et Statistique n° 522-523 : TVA et consommation des ménages (2016)","https://www.insee.fr/fr/statistiques/fichier/5347200/01-ES522-523_Andre-Biotteau_FR.pdf"],["Douane, circulaire du 30 septembre 2026 sur les produits énergétiques","https://www.douane.gouv.fr/sites/default/files/ba_files/da/2026-09/BOD%20DetT%20octobre%202026.pdf"],["DEPP, Note d'Information n° 26.42 : la dépense d'éducation en 2025","https://www.education.gouv.fr/depp/en-2025-1992-milliards-d-euros-consacres-l-education-soit-67-du-pib-506005"],["Insee Analyses n° 88, transferts reçus selon l'âge (2019)","https://www.insee.fr/fr/statistiques/7669723"],["Caf, barème national 2026 des aides aux partenaires","https://www.caf.fr/sites/default/files/medias/cnaf/Bar%C3%A8me%20des%20aides%20aux%20partenaires%20d'action%20sociale%202026.pdf"]]},
  {id:'ova',tab:"Où va l'argent",label:"Dépenses publiques par usage, nature et payeur",status:'verifie',scope:"Dépenses de l'ensemble des administrations publiques françaises de 1995 à 2024, par fonction (nomenclature COFOG, 10 postes et 67 sous-postes renseignés), par nature d'opération et par sous-secteur : Eurostat, gov_10a_exp, extraction d'octobre 2026 intégrée à l'outil. Les six natures et les trois payeurs sont des regroupements propres à l'outil ; pour chaque poste et chaque année, leur somme retombe sur le total publié, à l'arrondi près. Le découpage par payeur retire à chaque administration ce qu'elle verse aux autres ; Eurostat ne publie ces versements qu'à partir de 2009. Part du PIB calculée avec le PIB publié par Eurostat en octobre 2026 (nama_10_gdp), soit 57,0 % en 2024 ; le tableau par fonction d'Eurostat, établi avec un PIB antérieur, affiche 57,3 %, et c'est ce second chiffre qui sert à la comparaison avec l'Union dans l'onglet Europe. Population : Eurostat (demo_gind). L'année 2025 n'est pas encore publiée à ce niveau de détail.",links:[["Eurostat, dépenses des administrations publiques par fonction","https://ec.europa.eu/eurostat/databrowser/view/gov_10a_exp/default/table"],["Eurostat, la nomenclature COFOG","https://ec.europa.eu/eurostat/statistics-explained/index.php?title=Government_expenditure_by_function_%E2%80%93_COFOG"]]},
  {id:'ue_flux',tab:'Europe',label:"Flux financiers avec l'Union européenne",status:'verifie',scope:"Ressources versées et dépenses de l'Union par État membre, de 2000 à 2025 : fichier « EU spending and revenue » de la Commission européenne, intégré à l'outil en octobre 2026. Deux contrôles ont été faits : la contribution nationale française ainsi calculée retrouve au million près le prélèvement sur recettes exécuté publié par le Sénat (26 368 M€ en 2021, 23 873 M€ en 2023, 22 276 M€ en 2024) ; le classement 2024 des contributeurs nets, recalculé sans les régularisations, est identique à celui du Sénat. Population : Eurostat (demo_gind). Le regroupement des dépenses en cinq familles est propre à l'outil, la nomenclature du budget européen ayant changé à chaque cadre financier.",links:[["Commission européenne, EU spending and revenue","https://commission.europa.eu/strategy-and-policy/eu-budget/long-term-eu-budget/2021-2027/spending-and-revenue_en"],["Sénat, rapport sur le PLF 2026, affaires européennes","https://www.senat.fr/rap/l25-139-22/l25-139-22_mono.html"]]},
  {id:'ue_persp',tab:'Europe',label:"Plan de relance européen et perspectives",status:'partiel',scope:"Enveloppe de 40,3 Md€ et dernière tranche de 6,1 Md€ : Commission européenne (26 juin 2023 et 29 septembre 2026). Versements annuels du plan de relance : fichier de la Commission. Prélèvement 2026 de 28,8 Md€ : projet de loi de finances 2026, article 45 ; le montant de la loi promulguée n'a pas été recontrôlé. Prélèvement moyen 2028-2034 (38 Md€ par an), coût du remboursement de l'emprunt (24 Md€ par an pour l'Union, environ 2,5 Md€ pour la France) et engagement de 75 Md€ : estimations citées par le Sénat, d'après la Commission et la Cour des comptes, sur un cadre financier encore en négociation. L'explication de l'écart entre 37,4 et 40,3 Md€ par le volet REPowerEU est une lecture de l'outil, non confirmée par une source.",links:[["Commission, dernière demande de paiement de la France","https://france.representation.ec.europa.eu/informations-et-evenements/informations/la-commission-donne-son-feu-vert-la-derniere-demande-de-paiement-de-la-france-dun-montant-de-61-2026-09-29_fr"],["Commission, plan français modifié (2023)","https://france.representation.ec.europa.eu/informations-et-evenements/informations/nextgenerationeu-la-commission-europeenne-approuve-le-plan-pour-la-reprise-et-la-resilience-modifie-2023-06-26_fr"],["Sénat, plan de relance et remboursement","https://www.senat.fr/rap/l25-139-22/l25-139-224.html"]]},
@@ -1638,13 +1659,14 @@ const COFOG=[
  ['Environnement',0.8,1.0,false,"Déchets, eaux usées, biodiversité."]
 ];
 /* Barèmes 2026 du simulateur personnel « Mon bilan ». Fichier généré par outils/bilan-parametres.py : ne pas modifier à la main.
-   v : valeur ; d : date d'effet ; l : libellé ; s : source ; u : lien ; t : nature (taux, eur, eurh, h, nb, bareme). Aucun taux ne doit figurer ailleurs dans le code du simulateur. */
-const BIL_P={annee:2026,modele:"openfisca-france 175.0.45",genere:"2026-10-02",p:{
+   v : valeur ; d : date d'effet ; l : libellé ; s : source ; u : lien ; t : nature (taux, eur, eurh, eurl, h, nb, bareme, liste, ages). Aucun taux ne doit figurer ailleurs dans le code du simulateur. */
+const BIL_P={annee:2026,modele:"openfisca-france 175.0.45",genere:"2026-10-04",p:{
  pass:{"v":48060,"d":"2026-01-01","l":"Plafond annuel de la Sécurité sociale","s":"Arrêté du 22/12/2025 (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000053143451","t":"eur"},
  smic_h_jan:{"v":12.02,"d":"2026-01-01","l":"SMIC horaire brut au 1er janvier","s":"Décret n° 2025-1228 du 17/12/2025 portant relèvement du salaire minimum de croissance (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000053042520","t":"eurh"},
  smic_h_juin:{"v":12.31,"d":"2026-06-01","l":"SMIC horaire brut au 1er juin","s":"Arrêté du 22 mai 2026 relatif au relèvement du salaire minimum de croissance (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000054126589","t":"eurh"},
  smic_heures:{"v":151.67,"d":"2002-01-01","l":"Durée mensuelle légale du travail, en heures","s":"Loi n° 2000-37 du 19 janvier 2000 relative à la réduction négociée du temps de travail (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/loda/id/LEGIARTI000006658079/2000-02-01/","t":"h"},
  smic_h_rgdu:{"v":12.02,"d":"2026-01-01","l":"SMIC horaire retenu dans la formule de la réduction générale","s":"Gel du paramètre SMIC à sa valeur de janvier pour toute l'année 2026, malgré la hausse du 1er juin : Bulletin officiel de la Sécurité sociale, 5 juin 2026, confirmé par décret en juin 2026. OpenFisca applique encore le SMIC de juin.","u":"https://www.legisocial.fr/actualites-sociales/7986-reduction-generale-boss-confirme-gel-parametre-smic-1er-juin-2026.html","t":"eurh"},
+ profil_median:{"v":33200,"d":"2024-01-01","l":"Exemple « salaires médians » : salaire brut annuel correspondant au salaire net médian du secteur privé","s":"Insee Première n° 2079 (23 octobre 2025) : en 2024, la moitié des salariés du secteur privé perçoit moins de 2 190 € nets par mois en équivalent temps plein ; cela correspond à environ 33 200 € bruts par an pour un non-cadre, d'après le barème de cet outil.","u":"https://www.insee.fr/fr/statistiques/8657156","t":"eur"},
  n_pass_t2:{"v":8,"d":"2019-01-01","l":"Borne haute de la tranche 2, en nombre de plafonds de la Sécurité sociale","s":"Accord national interprofessionnel Agirc-Arrco du 17 novembre 2017 : la tranche 2 va de un à huit plafonds.","u":"https://www.agirc-arrco.fr/","t":"nb"},
  n_pass_4:{"v":4,"d":"2012-01-01","l":"Borne des assiettes limitées à quatre plafonds (chômage, AGS, Apec, abattement de CSG)","s":"Code de la sécurité sociale, article L. 136-2 (abattement de CSG) ; règlement d'assurance chômage ; statuts de l'Apec.","u":"https://www.urssaf.fr/","t":"nb"},
  sal_vieil_plaf:{"v":0.069,"d":"2016-01-01","l":"Vieillesse plafonnée, part salariale","s":"Article D242-4 du Code de la Sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000029924557/2015-01-01/","t":"taux"},
@@ -1691,7 +1713,177 @@ const BIL_P={annee:2026,modele:"openfisca-france 175.0.45",genere:"2026-10-02",p
  ir_decote_taux:{"v":0.4525,"d":"2020-01-01","l":"Décote : taux appliqué à l'impôt brut","s":"Article 197, I.4.a. du Code général des impôts (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042907517/2021-01-01","t":"taux"},
  ir_recouvrement:{"v":61,"d":"2002-01-01","l":"Montant en dessous duquel l'impôt n'est pas réclamé","s":"Article 1657 1 bis. du Code général des impôts (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006312659","t":"eur"},
  ir_cehr_seul:{"v":[[250000,0.03],[500000,0.04]],"d":"2011-01-01","l":"Contribution exceptionnelle sur les hauts revenus, personne seule","s":"Article 223 sexies, I.1., du Code général des impôts (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000025049027/2011-12-30","t":"bareme"},
- ir_cehr_couple:{"v":[[500000,0.03],[1000000,0.04]],"d":"2011-01-01","l":"Contribution exceptionnelle sur les hauts revenus, couple","s":"Article 223 sexies, I.1., du Code général des impôts (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000025049027/2011-12-30","t":"bareme"}
+ ir_cehr_couple:{"v":[[500000,0.03],[1000000,0.04]],"d":"2011-01-01","l":"Contribution exceptionnelle sur les hauts revenus, couple","s":"Article 223 sexies, I.1., du Code général des impôts (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000025049027/2011-12-30","t":"bareme"},
+ ir_qf_plaf:{"v":1807,"d":"2025-01-01","l":"Quotient familial : avantage maximal par demi-part","s":"Article 197, I.2. du Code général des impôts (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000046860759/2026-02-21/","t":"eur"},
+ ir_qf_plaf_isole:{"v":4262,"d":"2025-01-01","l":"Quotient familial : avantage maximal pour la part du premier enfant d'un parent isolé","s":"Article 197, I.2.§2 du Code général des impôts (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000046860759/2026-02-21/","t":"eur"},
+ ir_part_enf12:{"v":0.5,"d":"1951-01-01","l":"Quotient familial : part de chacun des deux premiers enfants","s":"Article 194, I. du Code général des impôts (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000049371120/1951-12-19/","t":"nb"},
+ ir_part_enf3:{"v":1,"d":"1995-01-01","l":"Quotient familial : part de chaque enfant à partir du troisième","s":"Article 194, I. du Code général des impôts (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006308279/1996-05-12/","t":"nb"},
+ ir_part_isole:{"v":0.5,"d":"1951-01-01","l":"Quotient familial : part supplémentaire du parent isolé","s":"Article 194, II. du Code général des impôts (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000049371120/1951-12-19/","t":"nb"},
+ ir_age_rattache:{"v":21,"d":"1975-01-01","l":"Impôt : âge limite, au 1er janvier, d'un enfant à charge ou rattaché","s":"impots.gouv.fr, « J'ai un enfant célibataire majeur, quelles sont les conditions pour le rattacher à ma déclaration de revenus ? » : enfant âgé de moins de 21 ans au 1er janvier (CGI, articles 6 et 196).","u":"https://www.impots.gouv.fr/particulier/questions/jai-un-enfant-celibataire-majeur-quelles-sont-les-conditions-pour-le-rattacher","t":"nb"},
+ ir_age_etudiant:{"v":25,"d":"1975-01-01","l":"Impôt : âge limite, au 1er janvier, d'un enfant rattaché qui poursuit ses études","s":"impots.gouv.fr, même page : enfant âgé de moins de 25 ans au 1er janvier et poursuivant ses études.","u":"https://www.impots.gouv.fr/particulier/questions/jai-un-enfant-celibataire-majeur-quelles-sont-les-conditions-pour-le-rattacher","t":"nb"},
+ per_taux:{"v":0.1,"d":"2004-01-01","l":"Épargne retraite : part du revenu professionnel déductible","s":"Bulletin officiel des finances publiques, « Limites de déduction des cotisations et primes d'épargne retraite » (CGI, article 163 quatervicies) : 10 % des revenus professionnels de l'année précédente, dans la limite de huit plafonds de la Sécurité sociale. Page repérée par une recherche, non relue.","u":"https://bofip.impots.gouv.fr/bofip/1124-PGP.html/identifiant=BOI-IR-BASE-20-50-20-20260217","t":"taux"},
+ per_min:{"v":0.1,"d":"2004-01-01","l":"Épargne retraite : déduction minimale, en part du plafond de la Sécurité sociale","s":"Loi 2003-1311 du 30 décembre 2003 (LF pour 2004), art. 82 (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000000612133","t":"taux"},
+ per_max:{"v":0.8,"d":"2004-01-01","l":"Épargne retraite : déduction maximale, en part du plafond de la Sécurité sociale","s":"Loi 2003-1311 du 30 décembre 2003 (LF pour 2004), art. 82 (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000000612133","t":"taux"},
+ ri_dons_taux:{"v":0.66,"d":"2005-01-01","l":"Dons : taux de la réduction d'impôt","s":"Article 200, 1. du Code général des impôts (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000045764695","t":"taux"},
+ ri_dons_plaf:{"v":0.2,"d":"2002-01-01","l":"Dons : plafond, en part du revenu imposable","s":"Article 200, 1. du Code général des impôts (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000045764695","t":"taux"},
+ ri_dons75_taux:{"v":0.75,"d":"2005-01-01","l":"Dons aux organismes d'aide aux personnes en difficulté : taux","s":"Article 200, 1.ter. du Code général des impôts (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000045764695","t":"taux"},
+ ri_dons75_plaf:{"v":2000,"d":"2025-01-01","l":"Dons aux organismes d'aide aux personnes en difficulté : plafond des versements","s":"Article 200, 1.ter. du Code général des impôts (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000045764695","t":"eur"},
+ ri_scol_college:{"v":61,"d":"2001-01-01","l":"Réduction d'impôt par enfant au collège","s":"Article 199 quater F du Code général des impôts (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006303194","t":"eur"},
+ ri_scol_lycee:{"v":153,"d":"2001-01-01","l":"Réduction d'impôt par enfant au lycée","s":"Article 199 quater F du Code général des impôts (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006303194","t":"eur"},
+ ri_scol_sup:{"v":183,"d":"2001-01-01","l":"Réduction d'impôt par enfant dans l'enseignement supérieur","s":"Article 199 quater F du Code général des impôts (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006303194","t":"eur"},
+ ci_garde_taux:{"v":0.5,"d":"2006-01-01","l":"Crédit d'impôt pour la garde hors du domicile des jeunes enfants : taux","s":"Art. 200 quater B du Code général des impôts (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000046861318/2023-01-01/","t":"taux"},
+ ci_garde_plaf:{"v":3500,"d":"2022-01-01","l":"Crédit d'impôt pour la garde hors du domicile : plafond de dépenses par enfant","s":"Art. 200 quater B du Code général des impôts (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000046861318/2023-01-01/","t":"eur"},
+ ci_garde_age:{"v":6,"d":"2005-01-01","l":"Crédit d'impôt pour la garde hors du domicile : âge limite de l'enfant au 1er janvier","s":"Code général des impôts, article 200 quater B : enfants de moins de six ans au 1er janvier de l'année d'imposition.","u":"https://www.impots.gouv.fr/particulier/questions/je-fais-garder-mon-jeune-enfant-lexterieur-du-domicile-que-puis-je-deduire","t":"nb"},
+ ci_dom_taux:{"v":0.5,"d":"2007-01-01","l":"Crédit d'impôt pour l'emploi à domicile : taux","s":"Article 199 sexdecies 4. du Code général des impôts (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000046861251","t":"taux"},
+ ci_dom_plaf:{"v":12000,"d":"2007-01-01","l":"Crédit d'impôt pour l'emploi à domicile : plafond de dépenses","s":"Article 199 sexdecies 3. du Code général des impôts (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000046861251","t":"eur"},
+ ci_dom_plaf_enf:{"v":1500,"d":"2007-01-01","l":"Crédit d'impôt pour l'emploi à domicile : majoration du plafond par enfant à charge","s":"Article 199 sexdecies 3. du Code général des impôts (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/section_lc/LEGITEXT000006069577/LEGISCTA000006191899","t":"eur"},
+ ci_dom_plaf_max:{"v":15000,"d":"2007-01-01","l":"Crédit d'impôt pour l'emploi à domicile : plafond après majorations","s":"Article 199 sexdecies 3. du Code général des impôts (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000046861251","t":"eur"},
+ bmaf:{"v":478.16,"d":"2026-04-01","l":"Base mensuelle de calcul des allocations familiales","s":"Instruction interministérielle n° DSS/2A/2026/36 du 26 mars 2026 (via OpenFisca-France 175.0.45)","u":"https://bulletins-officiels.social.gouv.fr/instruction-interministerielle-ndeg-dss2b202646-du-20-mars-2026-relative-la-revalorisation-au-1er-avril-2026-des-prestations-familiales-servies-en-metropole-en-guadeloupe-en-guyane-en-martinique-la-reunion-saint-barthelemy-saint-martin-et","t":"eur"},
+ pass_n1:{"v":47100,"d":"2025-01-01","l":"Plafond annuel de la Sécurité sociale de 2025 (plafond de l'épargne retraite)","s":"Arrêté du 19/12/2024 (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000050854392","t":"eur"},
+ pass_n2:{"v":46368,"d":"2024-01-01","l":"Plafond annuel de la Sécurité sociale de 2024 (seuil d'activité des deux membres d'un couple)","s":"Arrêté du 19/12/2023 (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/jorf/id/JORFARTI000048708695#JORFARTI000048708695","t":"eur"},
+ pf_biactif:{"v":0.136,"d":"2011-11-01","l":"Couple à deux revenus : revenu minimal de chacun, en part du plafond de la Sécurité sociale","s":"Circulaire DSS/2B/2011/447 du 01/12/2011 (via OpenFisca-France 175.0.45)","u":"https://github.com/openfisca/openfisca-france/blob/175.0.45/openfisca_france/parameters/prestations_sociales/prestations_familiales/def_biactif/revenu_professionnel_plancher_couples_biactifs/en_pourcentage_pss.yaml","t":"taux"},
+ pf_plaf_enf12:{"v":0.25,"d":"2018-04-01","l":"Plafonds de ressources : majoration pour chacun des deux premiers enfants","s":"Article R522-2 du Code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000046499019","t":"taux"},
+ pf_plaf_enf3:{"v":0.3,"d":"2018-04-01","l":"Plafonds de ressources : majoration par enfant à partir du troisième","s":"Article R522-2 du Code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000024665358/2011-11-01","t":"taux"},
+ pf_age_max:{"v":20,"d":"2000-02-01","l":"Âge limite d'un enfant pour les prestations familiales","s":"Article R512-2 du Code de la SS (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006750602/2000-01-29","t":"nb"},
+ af_taux_2:{"v":0.32,"d":"1982-02-01","l":"Allocations familiales pour deux enfants, en part de la base mensuelle","s":"Décret 2015-611 du 03/06/2015 (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/affichTexte.do?cidTexte=JORFTEXT000030674064","t":"taux"},
+ af_taux_sup:{"v":0.41,"d":"1986-01-01","l":"Allocations familiales par enfant à partir du troisième","s":"Article D521-1, b) du Code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000030680318/","t":"taux"},
+ af_maj_taux:{"v":0.16,"d":"2008-05-01","l":"Allocations familiales : majoration pour âge, par enfant","s":"Décret 2008-410 du 28/04/2008 (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000018730821","t":"taux"},
+ af_maj_age:{"v":14,"d":"2008-05-01","l":"Majoration pour âge : âge d'ouverture avant le 1er mars 2026","s":"Décret 2008-409 du 28/04/2008 (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/loda/article_lc/LEGIARTI000018731950/2022-02-28/","t":"nb"},
+ af_maj_age_2026:{"v":18,"d":"2026-03-01","l":"Majoration pour âge : âge d'ouverture depuis le 1er mars 2026","s":"Décret n° 2026-138 du 27 février 2026 portant à dix-huit ans l'âge de la majoration des allocations familiales (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000053594174","t":"nb"},
+ af_maj_annee:{"v":2012,"d":"2026-03-01","l":"Majoration pour âge : première année de naissance soumise à la règle des 18 ans (enfants nés à partir du 1er mars 2012)","s":"Décret n° 2026-138 du 27 février 2026, article 2 : la majoration est versée à 18 ans aux enfants dont le quatorzième anniversaire intervient à compter du 1er mars 2026 ; les autres la conservent dès 14 ans. Texte non relu, règle recoupée sur OpenFisca et aide-sociale.fr.","u":"https://www.aide-sociale.fr/majoration-allocations-familiales-18-ans-baisse/","t":"nb"},
+ af_plaf_1:{"v":79980,"d":"2026-01-01","l":"Allocations familiales : premier plafond de ressources, deux enfants","s":"Instruction interministérielle n° DSS/2B/2025/177 du 18/12/2025 (via OpenFisca-France 175.0.45)","u":"https://bulletins-officiels.social.gouv.fr/sites/textes-officiels/files/2025-12/SFHS2535630J_0.pdf","t":"eur"},
+ af_plaf_2:{"v":106604,"d":"2026-01-01","l":"Allocations familiales : second plafond de ressources, deux enfants","s":"Instruction interministérielle n° DSS/2B/2025/177 du 18/12/2025 (via OpenFisca-France 175.0.45)","u":"https://bulletins-officiels.social.gouv.fr/sites/textes-officiels/files/2025-12/SFHS2535630J_0.pdf","t":"eur"},
+ af_plaf_enf:{"v":6664,"d":"2026-01-01","l":"Allocations familiales : majoration des plafonds par enfant au-delà de deux","s":"Instruction interministérielle n° DSS/2B/2025/177 du 18/12/2025 (via OpenFisca-France 175.0.45)","u":"https://bulletins-officiels.social.gouv.fr/sites/textes-officiels/files/2025-12/SFHS2535630J_0.pdf","t":"eur"},
+ af_mod_2:{"v":0.5,"d":"2015-07-01","l":"Allocations familiales : part versée entre les deux plafonds","s":"Article D521-1 1) du Code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000030680318/2015-07-01/","t":"taux"},
+ af_mod_3:{"v":0.25,"d":"2015-07-01","l":"Allocations familiales : part versée au-dessus du second plafond","s":"Article D521-1 1) du Code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000030680318/2015-07-01/","t":"taux"},
+ ab_taux:{"v":0.4165,"d":"2018-04-01","l":"Allocation de base à taux plein, en part de la base mensuelle","s":"Article D531-3 du Code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000036852559/2018-04-01/","t":"taux"},
+ ab_taux_partiel:{"v":0.20825,"d":"2018-04-01","l":"Allocation de base à taux partiel","s":"Article D531-3 du Code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000036852559/2018-04-01/","t":"taux"},
+ ab_age:{"v":3,"d":"2004-01-01","l":"Allocation de base : âge limite de l'enfant","s":"Article D531-1 du Code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006737316/2004-01-01/","t":"nb"},
+ ab_plaf:{"v":24853,"d":"2026-01-01","l":"Allocation de base à taux plein : plafond de ressources de base","s":"Article L. 531-3 du code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000036393143","t":"eur"},
+ ab_plaf_maj:{"v":9989,"d":"2026-01-01","l":"Allocation de base à taux plein : majoration du plafond (deux revenus ou parent isolé)","s":"Article L. 531-3 du code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000036393143","t":"eur"},
+ ab_plaf_partiel:{"v":29694,"d":"2026-01-01","l":"Allocation de base à taux partiel : plafond de ressources de base","s":"Article L. 531-2 du code de la sécurité sociale, dernier alinéa (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042685543","t":"eur"},
+ ab_plaf_partiel_maj:{"v":11936,"d":"2026-01-01","l":"Allocation de base à taux partiel : majoration du plafond (deux revenus ou parent isolé)","s":"Article L. 531-2 du code de la sécurité sociale, dernier alinéa (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042685543","t":"eur"},
+ cf_taux:{"v":0.4165,"d":"1983-01-01","l":"Complément familial, en part de la base mensuelle","s":"Article D522-1 du Code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006737116/","t":"taux"},
+ cf_taux_majore:{"v":0.6248,"d":"2018-04-01","l":"Complément familial majoré","s":"Article D522-2 du Code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000038249420/2022-09-27/","t":"taux"},
+ cf_plaf:{"v":24853,"d":"2026-01-01","l":"Complément familial : plafond de ressources de base","s":"Instruction interministérielle n° DSS/2B/2025/177 du 18/12/2025 (via OpenFisca-France 175.0.45)","u":"https://bulletins-officiels.social.gouv.fr/sites/textes-officiels/files/2025-12/SFHS2535630J_0.pdf","t":"eur"},
+ cf_plaf_maj:{"v":9989,"d":"2026-01-01","l":"Complément familial : majoration du plafond (deux revenus ou parent isolé)","s":"Instruction interministérielle n° DSS/2B/2025/177 du 18/12/2025 (via OpenFisca-France 175.0.45)","u":"https://bulletins-officiels.social.gouv.fr/sites/textes-officiels/files/2025-12/SFHS2535630J_0.pdf","t":"eur"},
+ cf_plaf_majore:{"v":12429,"d":"2026-01-01","l":"Complément familial majoré : plafond de ressources de base","s":"Instruction interministérielle n° DSS/2B/2025/177 du 18/12/2025 (via OpenFisca-France 175.0.45)","u":"https://bulletins-officiels.social.gouv.fr/sites/textes-officiels/files/2025-12/SFHS2535630J_0.pdf","t":"eur"},
+ cf_plaf_majore_maj:{"v":4995,"d":"2026-01-01","l":"Complément familial majoré : majoration du plafond (deux revenus ou parent isolé)","s":"Instruction interministérielle n° DSS/2B/2025/177 du 18/12/2025 (via OpenFisca-France 175.0.45)","u":"https://bulletins-officiels.social.gouv.fr/sites/textes-officiels/files/2025-12/SFHS2535630J_0.pdf","t":"eur"},
+ cf_age_min:{"v":3,"d":"1986-07-01","l":"Complément familial : âge minimal de chaque enfant","s":"Décret 85-1353 du 17/12/1985, art. 1 (crée art. L522-1 et R522-1 du CSS) (via OpenFisca-France 175.0.45)","u":"https://github.com/openfisca/openfisca-france/blob/175.0.45/openfisca_france/parameters/prestations_sociales/prestations_familiales/prestations_generales/cf/cf_cm/age_min.yaml","t":"nb"},
+ cf_age_max:{"v":21,"d":"2000-02-01","l":"Complément familial : âge limite des enfants","s":"Article R522-1 du Code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006750615","t":"nb"},
+ cf_nb_min:{"v":3,"d":"1986-07-01","l":"Complément familial : nombre minimal d'enfants","s":"Décret 85-1353 du 17/12/1985, art. 1 (crée art. L522-1 et R522-1 du CSS) (via OpenFisca-France 175.0.45)","u":"https://github.com/openfisca/openfisca-france/blob/175.0.45/openfisca_france/parameters/prestations_sociales/prestations_familiales/prestations_generales/cf/cf_cm/nombre_d_enfants_minimal.yaml","t":"nb"},
+ ars_taux_primaire:{"v":0.8972,"d":"2012-08-01","l":"Allocation de rentrée scolaire, 6 à 10 ans, en part de la base mensuelle","s":"Article D543-1 du Code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000026087214","t":"taux"},
+ ars_taux_college:{"v":0.9467,"d":"2012-08-01","l":"Allocation de rentrée scolaire, 11 à 14 ans","s":"Article D543-1 du Code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000026087214","t":"taux"},
+ ars_taux_lycee:{"v":0.9795,"d":"2012-08-01","l":"Allocation de rentrée scolaire, 15 à 18 ans","s":"Article D543-1 du Code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000026087214","t":"taux"},
+ ars_plaf:{"v":22274,"d":"2026-01-01","l":"Allocation de rentrée scolaire : plafond de ressources de base","s":"Instruction interministérielle n° DSS/2B/2025/177 du 18/12/2025 (via OpenFisca-France 175.0.45)","u":"https://bulletins-officiels.social.gouv.fr/sites/textes-officiels/files/2025-12/SFHS2535630J_0.pdf","t":"eur"},
+ ars_plaf_enf:{"v":0.3,"d":"1986-07-01","l":"Allocation de rentrée scolaire : majoration du plafond par enfant à charge","s":"Création Décret 85-1353 1985-12-17, art. 1 (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000000866621/","t":"taux"},
+ ars_age_min:{"v":6,"d":"1974-08-14","l":"Allocation de rentrée scolaire : âge minimal","s":"Décret 74-706 du 13/08/1974, art. 2 (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/loda/id/JORFTEXT000000857489","t":"nb"},
+ ars_age_college:{"v":11,"d":"2002-01-01","l":"Allocation de rentrée scolaire : âge du deuxième montant","s":"Article D543-1 du Code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000019281633/2008-08-03/","t":"nb"},
+ ars_age_lycee:{"v":15,"d":"2002-01-01","l":"Allocation de rentrée scolaire : âge du troisième montant","s":"Article D543-1 du Code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000019281633/2008-08-03/","t":"nb"},
+ ars_age_max:{"v":18,"d":"1990-09-05","l":"Allocation de rentrée scolaire : âge limite","s":"Article R543-2 du Code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000019281627/1990-09-05/","t":"nb"},
+ ars_min:{"v":15,"d":"2002-08-09","l":"Allocation de rentrée scolaire : montant en dessous duquel elle n'est pas versée","s":"Article D543-2 du Code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006737260/","t":"eur"},
+ cmg_ref_am:{"v":4.91,"d":"2026-04-01","l":"CMG : coût horaire de référence, assistante maternelle","s":"Coût horaire de référence et plafond horaire revalorisés au 1er avril 2026 : actualité Urssaf du 24 mars 2026, citée par Weblex le 30 mars 2026. Formule du décret n° 2025-515 du 30 mai 2025 (texte non relu : Légifrance refuse l'accès automatique).","u":"https://www.weblex.fr/weblex-actualite/revalorisation-du-complement-de-libre-choix-du-mode-de-garde-des-enfants-de-moins-de-6-ans","t":"eurh"},
+ cmg_ref_gad:{"v":10.5,"d":"2026-04-01","l":"CMG : coût horaire de référence, garde à domicile","s":"Coût horaire de référence et plafond horaire revalorisés au 1er avril 2026 : actualité Urssaf du 24 mars 2026, citée par Weblex le 30 mars 2026. Formule du décret n° 2025-515 du 30 mai 2025 (texte non relu : Légifrance refuse l'accès automatique).","u":"https://www.weblex.fr/weblex-actualite/revalorisation-du-complement-de-libre-choix-du-mode-de-garde-des-enfants-de-moins-de-6-ans","t":"eurh"},
+ cmg_plaf_am:{"v":8.09,"d":"2026-04-01","l":"CMG : coût horaire maximal retenu, assistante maternelle","s":"Coût horaire de référence et plafond horaire revalorisés au 1er avril 2026 : actualité Urssaf du 24 mars 2026, citée par Weblex le 30 mars 2026. Formule du décret n° 2025-515 du 30 mai 2025 (texte non relu : Légifrance refuse l'accès automatique).","u":"https://www.weblex.fr/weblex-actualite/revalorisation-du-complement-de-libre-choix-du-mode-de-garde-des-enfants-de-moins-de-6-ans","t":"eurh"},
+ cmg_plaf_gad:{"v":15.18,"d":"2026-04-01","l":"CMG : coût horaire maximal retenu, garde à domicile","s":"Coût horaire de référence et plafond horaire revalorisés au 1er avril 2026 : actualité Urssaf du 24 mars 2026, citée par Weblex le 30 mars 2026. Formule du décret n° 2025-515 du 30 mai 2025 (texte non relu : Légifrance refuse l'accès automatique).","u":"https://www.weblex.fr/weblex-actualite/revalorisation-du-complement-de-libre-choix-du-mode-de-garde-des-enfants-de-moins-de-6-ans","t":"eurh"},
+ cmg_res_min:{"v":821.13,"d":"2026-04-01","l":"CMG : ressources mensuelles minimales retenues","s":"Montant forfaitaire du RSA pour une personne seule avec un enfant, moins le forfait logement (webinaire Caf de septembre 2025 : 815 € en 2025) ; valeur 2026 recalculée et recoupée sur un site professionnel (miraparent.com).","u":"https://www.caf.fr/sites/default/files/medias/441/partenaires_locaux/webinaires/WebinaireCMG_septembre2025.pdf","t":"eur"},
+ cmg_res_max:{"v":8500,"d":"2025-09-01","l":"CMG : ressources mensuelles maximales retenues","s":"Webinaire Caf « Complément de mode de garde », septembre 2025.","u":"https://www.caf.fr/sites/default/files/medias/441/partenaires_locaux/webinaires/WebinaireCMG_septembre2025.pdf","t":"eur"},
+ cmg_effort_am:{"v":[0.000619,0.000516,0.000413,0.00031,0.000206],"d":"2025-09-01","l":"CMG : taux d'effort par heure, assistante maternelle, pour 1, 2, 3, 4 à 7, 8 enfants à charge et plus","s":"Décret n° 2025-515 du 30 mai 2025 (non relu) ; barème repris par le webinaire Caf de septembre 2025 (un et deux enfants) et par la fédération des particuliers employeurs (barème complet).","u":"https://www.franceemploidomicile.fr/actualite/cmg-calcul-cout-parents-2/","t":"liste"},
+ cmg_effort_gad:{"v":[0.001238,0.001032,0.000826,0.00062,0.000412],"d":"2025-09-01","l":"CMG : taux d'effort par heure, garde à domicile, pour 1, 2, 3, 4 à 7, 8 enfants à charge et plus","s":"Décret n° 2025-515 du 30 mai 2025 (non relu) ; barème repris par le webinaire Caf de septembre 2025 (un enfant) et par la fédération des particuliers employeurs (barème complet).","u":"https://www.franceemploidomicile.fr/actualite/cmg-calcul-cout-parents-2/","t":"liste"},
+ cmg_age:{"v":6,"d":"2025-09-01","l":"CMG : âge limite de l'enfant (12 ans pour un parent isolé)","s":"service-public.gouv.fr, « Complément de libre choix du mode de garde : emploi direct », page vérifiée le 26 juin 2026.","u":"https://www.service-public.gouv.fr/particuliers/vosdroits/F39152","t":"nb"},
+ cmg_age_isole:{"v":12,"d":"2025-09-01","l":"CMG : âge limite de l'enfant d'un parent isolé","s":"service-public.gouv.fr, « Complément de libre choix du mode de garde : emploi direct », page vérifiée le 26 juin 2026.","u":"https://www.service-public.gouv.fr/particuliers/vosdroits/F39152","t":"nb"},
+ pa_base:{"v":638.28,"d":"2026-04-01","l":"Prime d'activité : montant forfaitaire pour une personne seule","s":"Décret n° 2026-222 du 30 mars 2026, art. 2 (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000053733855","t":"eur"},
+ pa_pente:{"v":0.5985,"d":"2025-04-01","l":"Prime d'activité : part des revenus professionnels ajoutée au montant forfaitaire","s":"Article D843-3 du code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000037462909","t":"taux"},
+ pa_bonif_min:{"v":59,"d":"2016-01-01","l":"Prime d'activité : seuil de la bonification, en nombre de SMIC horaires","s":"Article D843-2 du Code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000037873473","t":"nb"},
+ pa_bonif_max:{"v":138,"d":"2026-04-01","l":"Prime d'activité : revenu de la bonification maximale, en nombre de SMIC horaires","s":"Article D843-2 du Code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000037873473","t":"nb"},
+ pa_bonif_taux:{"v":0.377,"d":"2026-04-01","l":"Prime d'activité : bonification maximale, en part du montant forfaitaire","s":"Article D843-2 du Code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000037873473","t":"taux"},
+ pa_maj_1:{"v":0.5,"d":"2016-01-01","l":"Prime d'activité : majoration du forfaitaire pour la deuxième personne du foyer","s":"Article D843-1 du Code de la sécurité sociale (crée art. D843-1 du CSS) (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000031673885/","t":"taux"},
+ pa_maj_2:{"v":0.3,"d":"2016-01-01","l":"Prime d'activité : majoration pour la troisième personne (et la quatrième d'un couple)","s":"Article D843-1 du Code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000031673885/","t":"taux"},
+ pa_maj_sup:{"v":0.4,"d":"2016-01-01","l":"Prime d'activité : majoration par personne suivante","s":"Article D843-1 du Code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000031673885/","t":"taux"},
+ pa_isole:{"v":1.28412,"d":"2016-01-01","l":"Prime d'activité : forfaitaire majoré du parent isolé, en part du montant de base","s":"Article D843-1 du code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000031673885","t":"taux"},
+ pa_isole_enf:{"v":0.42804,"d":"2016-01-01","l":"Prime d'activité : forfaitaire majoré du parent isolé, par enfant","s":"Article D843-1 du code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000031673885","t":"taux"},
+ pa_fl_1:{"v":0.12,"d":"2016-01-01","l":"Prime d'activité : forfait logement, foyer d'une personne","s":"Article R844-3 du Code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000048841687","t":"taux"},
+ pa_fl_2:{"v":0.16,"d":"2016-01-01","l":"Prime d'activité : forfait logement, foyer de deux personnes","s":"Article R844-3 du Code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000048841687","t":"taux"},
+ pa_fl_3:{"v":0.165,"d":"2016-01-01","l":"Prime d'activité : forfait logement, foyer de trois personnes et plus","s":"Article R844-3 du Code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000048841687","t":"taux"},
+ pa_min:{"v":15,"d":"2015-10-01","l":"Prime d'activité : montant mensuel en dessous duquel elle n'est pas versée","s":"Article D843-1 du Code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000031673885/","t":"eur"},
+ pa_age_enf:{"v":25,"d":"2016-01-01","l":"Prime d'activité : âge limite d'un enfant à charge","s":"Code de la sécurité sociale, article R. 842-3 ; economie.gouv.fr, « Prime d'activité : pouvez-vous en bénéficier ? », page du 31 mars 2026.","u":"https://www.economie.gouv.fr/particuliers/vie-en-entreprise/prime-dactivite-pouvez-vous-en-beneficier","t":"nb"},
+ ir_abatpen_taux:{"v":0.1,"d":"1943-01-01","l":"Abattement sur les pensions : taux","s":"Art. 158 du Code général des impôts (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042158853","t":"taux"},
+ ir_abatpen_min:{"v":454,"d":"2025-01-01","l":"Abattement sur les pensions : minimum par pensionné","s":"Simulateur des impôts cité par toutsurmesfinances.com (revenus 2025) : 454 € au moins par pensionné, 4 439 € au plus par foyer ; un autre site (capretraite.fr) écrit 4 438 €. OpenFisca en est resté à 450 € et 4 399 €.","u":"https://www.toutsurmesfinances.com/impots/abattement-sur-les-pensions-de-retraite.html","t":"eur"},
+ ir_abatpen_max:{"v":4439,"d":"2025-01-01","l":"Abattement sur les pensions : maximum par foyer","s":"Simulateur des impôts cité par toutsurmesfinances.com (revenus 2025) : 454 € au moins par pensionné, 4 439 € au plus par foyer ; un autre site (capretraite.fr) écrit 4 438 €. OpenFisca en est resté à 450 € et 4 399 €.","u":"https://www.toutsurmesfinances.com/impots/abattement-sur-les-pensions-de-retraite.html","t":"eur"},
+ ir_age_abat:{"v":65,"d":"2025-01-01","l":"Abattement des personnes âgées : âge au 31 décembre","s":"Code général des impôts, article 157 bis ; montants des revenus 2025 lus sur moneyvox.fr (13 mai 2026). OpenFisca en est resté aux montants de 2024 (2 795 € et 1 398 €, seuils de 17 510 € et 28 170 €).","u":"https://www.moneyvox.fr/impot/actualites/102267/impots-2026-nouveau-bareme-pour-beneficier-de-abattement-destine-aux-invalides-et-aux-seniors","t":"nb"},
+ ir_abat_age_1:{"v":2822,"d":"2025-01-01","l":"Abattement des personnes âgées : montant sous le premier seuil de revenu","s":"Code général des impôts, article 157 bis ; montants des revenus 2025 lus sur moneyvox.fr (13 mai 2026). OpenFisca en est resté aux montants de 2024 (2 795 € et 1 398 €, seuils de 17 510 € et 28 170 €).","u":"https://www.moneyvox.fr/impot/actualites/102267/impots-2026-nouveau-bareme-pour-beneficier-de-abattement-destine-aux-invalides-et-aux-seniors","t":"eur"},
+ ir_abat_age_seuil_1:{"v":17670,"d":"2025-01-01","l":"Abattement des personnes âgées : premier seuil de revenu net global","s":"Code général des impôts, article 157 bis ; montants des revenus 2025 lus sur moneyvox.fr (13 mai 2026). OpenFisca en est resté aux montants de 2024 (2 795 € et 1 398 €, seuils de 17 510 € et 28 170 €).","u":"https://www.moneyvox.fr/impot/actualites/102267/impots-2026-nouveau-bareme-pour-beneficier-de-abattement-destine-aux-invalides-et-aux-seniors","t":"eur"},
+ ir_abat_age_2:{"v":1411,"d":"2025-01-01","l":"Abattement des personnes âgées : montant entre les deux seuils","s":"Code général des impôts, article 157 bis ; montants des revenus 2025 lus sur moneyvox.fr (13 mai 2026). OpenFisca en est resté aux montants de 2024 (2 795 € et 1 398 €, seuils de 17 510 € et 28 170 €).","u":"https://www.moneyvox.fr/impot/actualites/102267/impots-2026-nouveau-bareme-pour-beneficier-de-abattement-destine-aux-invalides-et-aux-seniors","t":"eur"},
+ ir_abat_age_seuil_2:{"v":28430,"d":"2025-01-01","l":"Abattement des personnes âgées : second seuil de revenu net global","s":"Code général des impôts, article 157 bis ; montants des revenus 2025 lus sur moneyvox.fr (13 mai 2026). OpenFisca en est resté aux montants de 2024 (2 795 € et 1 398 €, seuils de 17 510 € et 28 170 €).","u":"https://www.moneyvox.fr/impot/actualites/102267/impots-2026-nouveau-bareme-pour-beneficier-de-abattement-destine-aux-invalides-et-aux-seniors","t":"eur"},
+ fp_pension:{"v":0.111,"d":"2020-01-01","l":"Fonctionnaire : retenue pour pension, sur le traitement indiciaire","s":"Décret 2014-1531 du 17/12/2014, art. 11 (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/affichTexteArticle.do?idArticle=LEGIARTI000029921998&cidTexte=JORFTEXT000029920824","t":"taux"},
+ fp_rafp:{"v":0.05,"d":"2005-01-01","l":"Fonctionnaire : retraite additionnelle sur les primes, part de l'agent","s":"Décret 2004-569 du 18/06/2004 (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/eli/decret/2004/6/18/2004-569/jo/texte","t":"taux"},
+ fp_rafp_pat:{"v":0.05,"d":"2005-01-01","l":"Fonctionnaire : retraite additionnelle sur les primes, part de l'employeur","s":"Décret 2004-569 du 18/06/2004 (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/eli/decret/2004/6/18/2004-569/jo/texte","t":"taux"},
+ fp_rafp_plaf:{"v":0.2,"d":"2005-01-01","l":"Retraite additionnelle : assiette maximale, en part du traitement indiciaire","s":"Décret 2004-569 du 18/06/2004, art. 2 (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/jorf/article_jo/JORFARTI000002111419","t":"taux"},
+ fp_etat_pension_pat:{"v":0.8228,"d":"2026-01-01","l":"État employeur : contribution aux pensions civiles, sur le traitement indiciaire","s":"retraitesdeletat.gouv.fr : hausse de 4 points de la contribution employeur de l'État (décret n° 2025-1341 du 26 décembre 2025), soit 82,28 % en 2026. OpenFisca en est resté à 78,28 %.","u":"https://retraitesdeletat.gouv.fr/professionnels/le-versement-des-cotisations/les-etablissements-publics-nationaux-ou-organismes","t":"taux"},
+ fp_etat_ati:{"v":0.0032,"d":"2013-01-01","l":"État employeur : allocation temporaire d'invalidité","s":"Décret 2012-1507 du 27/12/2012 (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/eli/decret/2012/12/27/2012-1507/jo/texte","t":"taux"},
+ fp_etat_maladie:{"v":0.097,"d":"1984-01-01","l":"État employeur : maladie","s":"Article D712-38 du Code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006739097/1997-12-30","t":"taux"},
+ fp_local_pension_pat:{"v":0.3765,"d":"2026-01-01","l":"Employeur territorial ou hospitalier : contribution à la caisse de retraite (CNRACL)","s":"Décret n° 2025-86 du 30 janvier 2025 : 37,65 % en 2026, puis 40,65 % et 43,65 % ; lu sur le centre de gestion du Doubs (6 janvier 2026), décret non relu. OpenFisca en est resté à 34,65 %.","u":"https://www.cdg25.org/vient-de-paraitre/remuneration-ce-qui-change-au-1er-janvier-2026/","t":"taux"},
+ fp_local_ati:{"v":0.004,"d":"2013-01-01","l":"Employeur territorial ou hospitalier : allocation temporaire d'invalidité","s":"Décret 2012-1525 du 28/12/2012, art. 1 (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/affichTexteArticle.do?idArticle=LEGIARTI000026890703&cidTexte=JORFTEXT000026863182","t":"taux"},
+ fp_local_maladie:{"v":0.0988,"d":"2025-01-01","l":"Employeur territorial ou hospitalier : maladie","s":"Taux rétabli à 9,88 % au 1er janvier 2025, après 8,88 % en 2024 ; lu sur le centre de gestion du Haut-Rhin (3 février 2025), non relu pour 2026. OpenFisca en est resté à 8,88 %.","u":"https://www.cdg68.fr/blog/2025/02/03/charges-sociales-au-01-01-2025/","t":"taux"},
+ mi_taux_vente:{"v":0.123,"d":"2022-10-01","l":"Micro-entrepreneur, vente de marchandises : cotisations sociales, en part du chiffre d'affaires","s":"Article D613-4 du Code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000046714712/2022-12-10/","t":"taux"},
+ mi_taux_services:{"v":0.212,"d":"2022-10-01","l":"Micro-entrepreneur, prestations de services : cotisations sociales","s":"Article D613-4 du Code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000043656794/2020-05-25/","t":"taux"},
+ mi_taux_liberal:{"v":0.256,"d":"2026-01-01","l":"Micro-entrepreneur, activité libérale au régime général : cotisations sociales","s":"Article D613-4 du Code de la sécurité sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000052218738/2026-01-01","t":"taux"},
+ mi_cfp_vente:{"v":0.001,"d":"2011-01-01","l":"Micro-entrepreneur, vente : contribution à la formation professionnelle","s":"Loi 2010-1657 du 29/12/2010 de finances pour 2011, art. 137 (via OpenFisca-France 175.0.45)","u":"https://github.com/openfisca/openfisca-france/blob/175.0.45/openfisca_france/parameters/prelevements_sociaux/professions_liberales/auto_entrepreneur/formation_professionnelle/ventecom_chiffre_affaires.yaml","t":"taux"},
+ mi_cfp_services:{"v":0.003,"d":"2011-01-01","l":"Micro-entrepreneur, services : contribution à la formation professionnelle (taux des artisans)","s":"Loi 2010-1657 du 29/12/2010 de finances pour 2011, art. 137 (via OpenFisca-France 175.0.45)","u":"https://github.com/openfisca/openfisca-france/blob/175.0.45/openfisca_france/parameters/prelevements_sociaux/professions_liberales/auto_entrepreneur/formation_professionnelle/artisans_hors_alsace_chiffre_affaires.yaml","t":"taux"},
+ mi_cfp_liberal:{"v":0.002,"d":"2011-01-01","l":"Micro-entrepreneur, activité libérale : contribution à la formation professionnelle","s":"Loi 2010-1657 du 29/12/2010 de finances pour 2011, art. 137 (via OpenFisca-France 175.0.45)","u":"https://github.com/openfisca/openfisca-france/blob/175.0.45/openfisca_france/parameters/prelevements_sociaux/professions_liberales/auto_entrepreneur/formation_professionnelle/servicecom_chiffre_affaires.yaml","t":"taux"},
+ mi_abat_vente:{"v":0.71,"d":"2006-01-01","l":"Micro-entrepreneur, vente : abattement fiscal sur le chiffre d'affaires","s":"Article 50-0 du CGI (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000031781671/2016-01-01/","t":"taux"},
+ mi_abat_services:{"v":0.5,"d":"2006-01-01","l":"Micro-entrepreneur, services : abattement fiscal","s":"Article 50-0 du CGI (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000031781671/2016-01-01/","t":"taux"},
+ mi_abat_liberal:{"v":0.34,"d":"2006-01-01","l":"Micro-entrepreneur, activité libérale : abattement fiscal","s":"Article 102 ter du CGI (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006302649/2006-12-22/","t":"taux"},
+ mi_abat_min:{"v":305,"d":"2001-01-01","l":"Micro-entrepreneur : abattement fiscal minimal","s":"Article 102 ter du CGI (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006302649/2006-12-22/","t":"eur"},
+ mi_plaf_vente:{"v":203100,"d":"2026-01-01","l":"Micro-entrepreneur, vente de marchandises : plafond de chiffre d'affaires du régime","s":"portail-autoentrepreneur.fr : plafonds de chiffre d'affaires du régime micro pour 2026 à 2028 (203 100 € pour le commerce, 83 600 € pour les services et les activités libérales), d'après l'Urssaf et impots.gouv.fr ; textes non relus. OpenFisca en est resté à 188 700 € et 77 700 €.","u":"https://www.portail-autoentrepreneur.fr/academie/statut-auto-entrepreneur/plafond-chiffre-daffaires","t":"eur"},
+ mi_plaf_services:{"v":83600,"d":"2026-01-01","l":"Micro-entrepreneur, prestations de services : plafond de chiffre d'affaires du régime","s":"portail-autoentrepreneur.fr : plafonds de chiffre d'affaires du régime micro pour 2026 à 2028 (203 100 € pour le commerce, 83 600 € pour les services et les activités libérales), d'après l'Urssaf et impots.gouv.fr ; textes non relus. OpenFisca en est resté à 188 700 € et 77 700 €.","u":"https://www.portail-autoentrepreneur.fr/academie/statut-auto-entrepreneur/plafond-chiffre-daffaires","t":"eur"},
+ mi_plaf_liberal:{"v":83600,"d":"2026-01-01","l":"Micro-entrepreneur, activité libérale : plafond de chiffre d'affaires du régime","s":"portail-autoentrepreneur.fr : plafonds de chiffre d'affaires du régime micro pour 2026 à 2028 (203 100 € pour le commerce, 83 600 € pour les services et les activités libérales), d'après l'Urssaf et impots.gouv.fr ; textes non relus. OpenFisca en est resté à 188 700 € et 77 700 €.","u":"https://www.portail-autoentrepreneur.fr/academie/statut-auto-entrepreneur/plafond-chiffre-daffaires","t":"eur"},
+ re_csg_reduit:{"v":0.038,"d":"1998-01-01","l":"Retraite : CSG au taux réduit, entièrement déductible","s":"Article 154 quinquies du Code général des impôts (taux global) (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000047288608","t":"taux"},
+ re_csg_median_ded:{"v":0.042,"d":"2019-01-01","l":"Retraite : CSG au taux médian (6,6 %), part déductible","s":"Article 154 quinquies du Code général des impôts (taux global) (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000038836652/2019-10-01/","t":"taux"},
+ re_csg_plein_ded:{"v":0.059,"d":"2018-01-01","l":"Retraite : CSG au taux normal (8,3 %), part déductible","s":"Article 154 quinquies du Code général des impôts (taux global) (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000047288608","t":"taux"},
+ re_csg_nonded:{"v":0.024,"d":"1997-01-01","l":"Retraite : CSG non déductible, aux taux médian et normal","s":"Article 154 quinquies du Code général des impôts (taux global) (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000047288608","t":"taux"},
+ re_casa:{"v":0.003,"d":"2013-04-01","l":"Retraite : contribution additionnelle de solidarité pour l'autonomie","s":"Article L137-41 du Code de la Sécurité Sociale (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042675242","t":"taux"},
+ re_maladie:{"v":0.01,"d":"2026-01-01","l":"Retraite : cotisation maladie sur la retraite complémentaire","s":"Cotisation d'assurance maladie de 1 % sur les retraites complémentaires Agirc-Arrco, lue sur un site professionnel (toutsurmesfinances.com) ; la condition retenue ici (due aux taux médian et normal de CSG seulement) vient de mémoire du barème Agirc-Arrco, non vérifié. Absente d'OpenFisca.","u":"https://www.toutsurmesfinances.com/impots/csg-des-retraites.html","t":"taux"},
+ re_seuil_1:{"v":13048,"d":"2026-01-01","l":"Retraite : revenu fiscal de référence jusqu'auquel la pension est exonérée de CSG, pour une part","s":"Article L136-8 du Code de la sécurité sociale (seuils avant revalorisation) (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042683546","t":"eur"},
+ re_seuil_1_demi:{"v":3484,"d":"2026-01-01","l":"Retraite : majoration du seuil d'exonération par demi-part","s":"Article L136-8 du Code de la sécurité sociale (seuils avant revalorisation) (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042683546","t":"eur"},
+ re_seuil_2:{"v":17057,"d":"2026-01-01","l":"Retraite : revenu fiscal de référence jusqu'auquel la CSG est au taux réduit, pour une part","s":"Article L136-8 du Code de la sécurité sociale (seuils avant revalorisation) (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042683546","t":"eur"},
+ re_seuil_2_demi:{"v":4555,"d":"2026-01-01","l":"Retraite : majoration du seuil du taux réduit par demi-part","s":"Article L136-8 du Code de la sécurité sociale (seuils avant revalorisation) (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042683546","t":"eur"},
+ re_seuil_3:{"v":26472,"d":"2026-01-01","l":"Retraite : revenu fiscal de référence jusqu'auquel la CSG est au taux médian, pour une part","s":"Article L136-8 du Code de la sécurité sociale (seuils avant revalorisation) (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042683546","t":"eur"},
+ re_seuil_3_demi:{"v":7066,"d":"2026-01-01","l":"Retraite : majoration du seuil du taux médian par demi-part","s":"Article L136-8 du Code de la sécurité sociale (seuils avant revalorisation) (via OpenFisca-France 175.0.45)","u":"https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042683546","t":"eur"},
+ uc_adulte:{"v":0.5,"d":"2022-12-16","l":"Niveau de vie : unité de consommation d'une personne de 14 ans ou plus, après le premier adulte","s":"Insee, définition « Unité de consommation » (échelle dite de l'OCDE modifiée) : 1 pour le premier adulte, 0,5 pour les autres personnes de 14 ans ou plus, 0,3 pour les enfants de moins de 14 ans.","u":"https://www.insee.fr/fr/metadonnees/definition/c1802","t":"nb"},
+ uc_enfant:{"v":0.3,"d":"2022-12-16","l":"Niveau de vie : unité de consommation d'un enfant de moins de 14 ans","s":"Insee, définition « Unité de consommation » (échelle dite de l'OCDE modifiée) : 1 pour le premier adulte, 0,5 pour les autres personnes de 14 ans ou plus, 0,3 pour les enfants de moins de 14 ans.","u":"https://www.insee.fr/fr/metadonnees/definition/c1802","t":"nb"},
+ uc_age:{"v":14,"d":"2022-12-16","l":"Niveau de vie : âge à partir duquel un enfant compte pour 0,5 unité","s":"Insee, définition « Unité de consommation » (échelle dite de l'OCDE modifiée) : 1 pour le premier adulte, 0,5 pour les autres personnes de 14 ans ou plus, 0,3 pour les enfants de moins de 14 ans.","u":"https://www.insee.fr/fr/metadonnees/definition/c1802","t":"nb"},
+ nv_q1:{"v":17700,"d":"2024-01-01","l":"Niveau de vie : borne supérieure du premier cinquième, par unité de consommation et par an","s":"Insee, « Distribution des niveaux de vie », paru le 9 juillet 2026 : déciles de niveau de vie de 2024 (enquête Revenus fiscaux et sociaux), en euros par an et par unité de consommation ; les cinquièmes sont bornés par les 2e, 4e, 6e et 8e déciles.","u":"https://www.insee.fr/fr/statistiques/2416808","t":"eur"},
+ nv_q2:{"v":23880,"d":"2024-01-01","l":"Niveau de vie : borne supérieure du deuxième cinquième, par unité de consommation et par an","s":"Insee, « Distribution des niveaux de vie », paru le 9 juillet 2026 : déciles de niveau de vie de 2024 (enquête Revenus fiscaux et sociaux), en euros par an et par unité de consommation ; les cinquièmes sont bornés par les 2e, 4e, 6e et 8e déciles.","u":"https://www.insee.fr/fr/statistiques/2416808","t":"eur"},
+ nv_q3:{"v":29880,"d":"2024-01-01","l":"Niveau de vie : borne supérieure du troisième cinquième, par unité de consommation et par an","s":"Insee, « Distribution des niveaux de vie », paru le 9 juillet 2026 : déciles de niveau de vie de 2024 (enquête Revenus fiscaux et sociaux), en euros par an et par unité de consommation ; les cinquièmes sont bornés par les 2e, 4e, 6e et 8e déciles.","u":"https://www.insee.fr/fr/statistiques/2416808","t":"eur"},
+ nv_q4:{"v":38780,"d":"2024-01-01","l":"Niveau de vie : borne supérieure du quatrième cinquième, par unité de consommation et par an","s":"Insee, « Distribution des niveaux de vie », paru le 9 juillet 2026 : déciles de niveau de vie de 2024 (enquête Revenus fiscaux et sociaux), en euros par an et par unité de consommation ; les cinquièmes sont bornés par les 2e, 4e, 6e et 8e déciles.","u":"https://www.insee.fr/fr/statistiques/2416808","t":"eur"},
+ nv_c1:{"v":13970,"d":"2024-01-01","l":"Niveau de vie médian du premier cinquième, par unité de consommation et par an","s":"Insee, « Distribution des niveaux de vie », paru le 9 juillet 2026 : déciles impairs de 2024 (1er, 3e, 5e, 7e, 9e), c'est-à-dire le niveau de vie médian de chaque cinquième. L'outil y place le taux d'épargne moyen du cinquième et relie ces cinq points par des droites (calcul de l'outil).","u":"https://www.insee.fr/fr/statistiques/2416808","t":"eur"},
+ nv_c2:{"v":20980,"d":"2024-01-01","l":"Niveau de vie médian du deuxième cinquième, par unité de consommation et par an","s":"Insee, « Distribution des niveaux de vie », paru le 9 juillet 2026 : déciles impairs de 2024 (1er, 3e, 5e, 7e, 9e), c'est-à-dire le niveau de vie médian de chaque cinquième. L'outil y place le taux d'épargne moyen du cinquième et relie ces cinq points par des droites (calcul de l'outil).","u":"https://www.insee.fr/fr/statistiques/2416808","t":"eur"},
+ nv_c3:{"v":26740,"d":"2024-01-01","l":"Niveau de vie médian du troisième cinquième, par unité de consommation et par an","s":"Insee, « Distribution des niveaux de vie », paru le 9 juillet 2026 : déciles impairs de 2024 (1er, 3e, 5e, 7e, 9e), c'est-à-dire le niveau de vie médian de chaque cinquième. L'outil y place le taux d'épargne moyen du cinquième et relie ces cinq points par des droites (calcul de l'outil).","u":"https://www.insee.fr/fr/statistiques/2416808","t":"eur"},
+ nv_c4:{"v":33680,"d":"2024-01-01","l":"Niveau de vie médian du quatrième cinquième, par unité de consommation et par an","s":"Insee, « Distribution des niveaux de vie », paru le 9 juillet 2026 : déciles impairs de 2024 (1er, 3e, 5e, 7e, 9e), c'est-à-dire le niveau de vie médian de chaque cinquième. L'outil y place le taux d'épargne moyen du cinquième et relie ces cinq points par des droites (calcul de l'outil).","u":"https://www.insee.fr/fr/statistiques/2416808","t":"eur"},
+ nv_c5:{"v":48580,"d":"2024-01-01","l":"Niveau de vie médian du cinquième cinquième, par unité de consommation et par an","s":"Insee, « Distribution des niveaux de vie », paru le 9 juillet 2026 : déciles impairs de 2024 (1er, 3e, 5e, 7e, 9e), c'est-à-dire le niveau de vie médian de chaque cinquième. L'outil y place le taux d'épargne moyen du cinquième et relie ces cinq points par des droites (calcul de l'outil).","u":"https://www.insee.fr/fr/statistiques/2416808","t":"eur"},
+ ep_q1:{"v":0.0271,"d":"2017-01-01","l":"Taux d'épargne moyen du premier cinquième de niveau de vie","s":"Insee Première n° 1815 (septembre 2020), figure 5 : taux d'épargne des ménages par cinquième de revenu disponible par unité de consommation, en 2017 (comptes nationaux, enquêtes Revenus fiscaux et sociaux et Budget de famille). Données de 2017 ; cinquièmes de la comptabilité nationale, appliqués ici aux bornes de niveau de vie de 2024.","u":"https://www.insee.fr/fr/statistiques/4764600","t":"taux"},
+ ep_q2:{"v":0.0499,"d":"2017-01-01","l":"Taux d'épargne moyen du deuxième cinquième de niveau de vie","s":"Insee Première n° 1815 (septembre 2020), figure 5 : taux d'épargne des ménages par cinquième de revenu disponible par unité de consommation, en 2017 (comptes nationaux, enquêtes Revenus fiscaux et sociaux et Budget de famille). Données de 2017 ; cinquièmes de la comptabilité nationale, appliqués ici aux bornes de niveau de vie de 2024.","u":"https://www.insee.fr/fr/statistiques/4764600","t":"taux"},
+ ep_q3:{"v":0.0965,"d":"2017-01-01","l":"Taux d'épargne moyen du troisième cinquième de niveau de vie","s":"Insee Première n° 1815 (septembre 2020), figure 5 : taux d'épargne des ménages par cinquième de revenu disponible par unité de consommation, en 2017 (comptes nationaux, enquêtes Revenus fiscaux et sociaux et Budget de famille). Données de 2017 ; cinquièmes de la comptabilité nationale, appliqués ici aux bornes de niveau de vie de 2024.","u":"https://www.insee.fr/fr/statistiques/4764600","t":"taux"},
+ ep_q4:{"v":0.1123,"d":"2017-01-01","l":"Taux d'épargne moyen du quatrième cinquième de niveau de vie","s":"Insee Première n° 1815 (septembre 2020), figure 5 : taux d'épargne des ménages par cinquième de revenu disponible par unité de consommation, en 2017 (comptes nationaux, enquêtes Revenus fiscaux et sociaux et Budget de famille). Données de 2017 ; cinquièmes de la comptabilité nationale, appliqués ici aux bornes de niveau de vie de 2024.","u":"https://www.insee.fr/fr/statistiques/4764600","t":"taux"},
+ ep_q5:{"v":0.2837,"d":"2017-01-01","l":"Taux d'épargne moyen du cinquième cinquième de niveau de vie","s":"Insee Première n° 1815 (septembre 2020), figure 5 : taux d'épargne des ménages par cinquième de revenu disponible par unité de consommation, en 2017 (comptes nationaux, enquêtes Revenus fiscaux et sociaux et Budget de famille). Données de 2017 ; cinquièmes de la comptabilité nationale, appliqués ici aux bornes de niveau de vie de 2024.","u":"https://www.insee.fr/fr/statistiques/4764600","t":"taux"},
+ tva_conso:{"v":0.107,"d":"2016-01-01","l":"TVA payée par les ménages, en part de leur consommation TVA comprise","s":"Calcul de l'outil sur le tableau 1 de M. André et A.-L. Biotteau, Économie et Statistique n° 522-523 (Insee, 2021) : 97 260 M€ de TVA acquittée par les ménages pour 906 705 M€ de dépenses de consommation TVA comprise en 2016 (loyers imputés exclus), soit 10,7 %. Un seul taux pour tous les foyers : le Conseil des prélèvements obligatoires (rapport particulier « Les effets redistributifs de la taxe sur la valeur ajoutée », avril 2015, données de 2011) donne 9,3 % pour le premier dixième de niveau de vie et 10,6 % pour le dernier, loyers compris.","u":"https://www.insee.fr/fr/statistiques/fichier/5347200/01-ES522-523_Andre-Biotteau_FR.pdf","t":"taux"},
+ acc_gazole:{"v":0.6075,"d":"2025-08-01","l":"Accise sur les carburants : gazole","s":"Douane, circulaire du 30 septembre 2026 « Droits et taxes applicables aux produits énergétiques à compter du 1er octobre 2026 », annexe 1.1 : tarif de l'accise sur les énergies en euros par hectolitre, France continentale, inchangé depuis le 1er août 2025 ; hors TVA.","u":"https://www.douane.gouv.fr/sites/default/files/ba_files/da/2026-09/BOD%20DetT%20octobre%202026.pdf","t":"eurl"},
+ acc_e10:{"v":0.6702,"d":"2025-08-01","l":"Accise sur les carburants : essence SP95-E10","s":"Douane, circulaire du 30 septembre 2026 « Droits et taxes applicables aux produits énergétiques à compter du 1er octobre 2026 », annexe 1.1 : tarif de l'accise sur les énergies en euros par hectolitre, France continentale, inchangé depuis le 1er août 2025 ; hors TVA.","u":"https://www.douane.gouv.fr/sites/default/files/ba_files/da/2026-09/BOD%20DetT%20octobre%202026.pdf","t":"eurl"},
+ acc_e5:{"v":0.6902,"d":"2025-08-01","l":"Accise sur les carburants : essence SP95 et SP98","s":"Douane, circulaire du 30 septembre 2026 « Droits et taxes applicables aux produits énergétiques à compter du 1er octobre 2026 », annexe 1.1 : tarif de l'accise sur les énergies en euros par hectolitre, France continentale, inchangé depuis le 1er août 2025 ; hors TVA.","u":"https://www.douane.gouv.fr/sites/default/files/ba_files/da/2026-09/BOD%20DetT%20octobre%202026.pdf","t":"eurl"},
+ acc_e85:{"v":0.1183,"d":"2025-08-01","l":"Accise sur les carburants : superéthanol E85","s":"Tarif déduit de deux pages officielles : 17,894 € par mégawattheure, inchangé en 2026 (ministère de la transition écologique, Guide 2026 sur la fiscalité des énergies), soit 11,83 € par hectolitre d'après l'équivalence publiée par le même ministère pour 2024 ; hors TVA.","u":"https://www.ecologie.gouv.fr/sites/default/files/documents/Guide%202026%20sur%20fiscalit%C3%A9%20des%20%C3%A9nergies.pdf","t":"eurl"},
+ eco_age_min:{"v":3,"d":"2019-09-01","l":"École : âge d'entrée à l'école maternelle","s":"Ministère de l'Éducation nationale, « L'école maternelle » : l'instruction obligatoire débute à 3 ans.","u":"https://www.education.gouv.fr/l-ecole-maternelle-11534","t":"nb"},
+ eco_mois_entree:{"v":4,"d":"2019-09-01","l":"École : mois de scolarité l'année des 3 ans (rentrée de septembre)","s":"Convention de l'outil : l'enfant entre à l'école maternelle à la rentrée de septembre de l'année de ses 3 ans (ministère de l'Éducation nationale, « L'école maternelle »), soit 4 mois d'école et, avant, 8 mois de crèche possibles.","u":"https://www.education.gouv.fr/l-ecole-maternelle-11534","t":"nb"},
+ eco_mat:{"v":9270,"d":"2025-01-01","l":"École : dépense moyenne par élève, préélémentaire","s":"DEPP, Note d'Information n° 26.42 (septembre 2026) : dépense moyenne par élève ou étudiant en 2025 (données provisoires), tous financeurs confondus (État, collectivités, ménages, entreprises), enseignement, cantine, internat et administration compris.","u":"https://www.education.gouv.fr/depp/en-2025-1992-milliards-d-euros-consacres-l-education-soit-67-du-pib-506005","t":"eur"},
+ eco_elem:{"v":9530,"d":"2025-01-01","l":"École : dépense moyenne par élève, élémentaire","s":"DEPP, Note d'Information n° 26.42 (septembre 2026) : dépense moyenne par élève ou étudiant en 2025 (données provisoires), tous financeurs confondus (État, collectivités, ménages, entreprises), enseignement, cantine, internat et administration compris.","u":"https://www.education.gouv.fr/depp/en-2025-1992-milliards-d-euros-consacres-l-education-soit-67-du-pib-506005","t":"eur"},
+ eco_college:{"v":10580,"d":"2025-01-01","l":"École : dépense moyenne par élève, collège","s":"DEPP, Note d'Information n° 26.42 (septembre 2026) : dépense moyenne par élève ou étudiant en 2025 (données provisoires), tous financeurs confondus (État, collectivités, ménages, entreprises), enseignement, cantine, internat et administration compris.","u":"https://www.education.gouv.fr/depp/en-2025-1992-milliards-d-euros-consacres-l-education-soit-67-du-pib-506005","t":"eur"},
+ eco_lycee:{"v":13200,"d":"2025-01-01","l":"École : dépense moyenne par élève, lycée général et technologique (14 590 € en lycée professionnel)","s":"DEPP, Note d'Information n° 26.42 (septembre 2026) : dépense moyenne par élève ou étudiant en 2025 (données provisoires), tous financeurs confondus (État, collectivités, ménages, entreprises), enseignement, cantine, internat et administration compris.","u":"https://www.education.gouv.fr/depp/en-2025-1992-milliards-d-euros-consacres-l-education-soit-67-du-pib-506005","t":"eur"},
+ eco_sup:{"v":13350,"d":"2025-01-01","l":"École : dépense moyenne par élève, enseignement supérieur","s":"DEPP, Note d'Information n° 26.42 (septembre 2026) : dépense moyenne par élève ou étudiant en 2025 (données provisoires), tous financeurs confondus (État, collectivités, ménages, entreprises), enseignement, cantine, internat et administration compris.","u":"https://www.education.gouv.fr/depp/en-2025-1992-milliards-d-euros-consacres-l-education-soit-67-du-pib-506005","t":"eur"},
+ eco_pub_1:{"v":0.949,"d":"2025-01-01","l":"École : part financée par les administrations publiques, premier degré","s":"Calcul de l'outil sur la figure 4 de la Note d'Information n° 26.42 de la DEPP (2025, données provisoires) : somme des parts de l'État, des collectivités territoriales et des autres administrations publiques dans le financement initial (avant transfert des bourses et de l'allocation de rentrée scolaire vers les ménages).","u":"https://www.education.gouv.fr/depp/en-2025-1992-milliards-d-euros-consacres-l-education-soit-67-du-pib-506005","t":"taux"},
+ eco_pub_2:{"v":0.889,"d":"2025-01-01","l":"École : part financée par les administrations publiques, second degré","s":"Calcul de l'outil sur la figure 4 de la Note d'Information n° 26.42 de la DEPP (2025, données provisoires) : somme des parts de l'État, des collectivités territoriales et des autres administrations publiques dans le financement initial (avant transfert des bourses et de l'allocation de rentrée scolaire vers les ménages).","u":"https://www.education.gouv.fr/depp/en-2025-1992-milliards-d-euros-consacres-l-education-soit-67-du-pib-506005","t":"taux"},
+ eco_pub_sup:{"v":0.667,"d":"2025-01-01","l":"École : part financée par les administrations publiques, enseignement supérieur","s":"Calcul de l'outil sur la figure 4 de la Note d'Information n° 26.42 de la DEPP (2025, données provisoires) : somme des parts de l'État, des collectivités territoriales et des autres administrations publiques dans le financement initial (avant transfert des bourses et de l'allocation de rentrée scolaire vers les ménages).","u":"https://www.education.gouv.fr/depp/en-2025-1992-milliards-d-euros-consacres-l-education-soit-67-du-pib-506005","t":"taux"},
+ sante_uc:{"v":[[18,1750],[25,1720],[30,1790],[35,1920],[40,2360],[45,2340],[50,3040],[55,2900],[60,4300],[65,6350],[70,6770],[75,8890],[80,10420]],"d":"2019-01-01","l":"Soins : transferts de santé par an et par unité de consommation, selon l'âge de la personne de référence du ménage","s":"Insee Analyses n° 88 (septembre 2023), figure 7 : transferts de santé reçus en 2019 par les ménages, en euros par an et par unité de consommation, selon l'âge de la personne de référence du ménage (comptes nationaux distribués). Valeurs de 2019, non revalorisées ; moyenne par ménage et non par personne.","u":"https://www.insee.fr/fr/statistiques/7669723","t":"ages"},
+ creche_revient:{"v":13.38,"d":"2024-01-01","l":"Crèche : prix de revient moyen d'une heure d'accueil","s":"Caf, « Les aides des Caf aux partenaires – barème national 2026 » (mis à jour le 20 novembre 2025) : prix moyen horaire estimatif 2024 de l'accueil du jeune enfant, 13,38 € par heure réalisée, crèches financées par la prestation de service unique.","u":"https://www.caf.fr/sites/default/files/medias/cnaf/Bar%C3%A8me%20des%20aides%20aux%20partenaires%20d'action%20sociale%202026.pdf","t":"eurh"}
 }};
 const bilP=id=>BIL_P.p[id].v;
 /* Où va l'argent : dépenses de l'ensemble des administrations publiques françaises, en millions d'euros courants.
@@ -2736,121 +2928,374 @@ function bilBareme(x,bareme){
  bareme.forEach(([seuil,taux],i)=>{ const haut=i+1<bareme.length?bareme[i+1][0]:Infinity; if(x>seuil) t+=(Math.min(x,haut)-seuil)*taux; });
  return t;
 }
-/* Impôt sur le revenu d'une déclaration, avant avantages fiscaux.
-   salaires : net imposable de chaque déclarant ; couple : imposition commune (deux parts). */
+/* Âge d'un enfant : entier de 0 à 25, sinon null (enfant ignoré) */
+const bilAge=x=>{ if(x==null||x==='') return null; const n=typeof x==='number'?x:parseFloat(String(x).replace(',','.')); return Number.isFinite(n)&&n>=0&&n<=25?Math.floor(n):null; };
+/* Enfants à charge au sens de l'impôt : mineurs, majeurs rattachés de moins de 21 ans au 1er janvier, étudiants de moins de 25 ans.
+   L'âge saisi est celui atteint dans l'année : au 1er janvier, l'enfant a un an de moins. */
+function bilEnfantsFisc(enfants){
+ return (enfants||[]).filter(e=>{ const a=bilAge(e&&e.age); return a!=null&&(a-1<bilP('ir_age_rattache')||(a-1<bilP('ir_age_etudiant')&&!!e.etudiant)); });
+}
+/* Impôt sur le revenu d'une déclaration.
+   salaires : net imposable de chaque déclarant ; couple : imposition commune (deux parts) ;
+   enfants : [{age, etudiant}] ; isole : parent isolé (case T) ;
+   avantages fiscaux : per (versements d'épargne retraite), dons75, dons66, garde (dépense annuelle nette par enfant de
+   moins de 6 ans, hors du domicile), domicile (dépenses d'emploi à domicile).
+   `impot` est l'impôt avant avantages ; `impotNet` l'impôt après avantages (négatif s'il y a remboursement). */
 function bilImpot(d){
- const salaires=((d&&d.salaires)||[]).map(bilNum), couple=!!(d&&d.couple), parts=couple?2:1, lignes=[];
+ const D=d||{}, liste=x=>Array.isArray(x)?x:[], couple=!!D.couple, partsBase=couple?2:1, lignes=[];
+ const nb=Math.max(liste(D.salaires).length,liste(D.pensions).length,liste(D.micros).length), rang=Array.from({length:nb},(_,n)=>n), decl=n=>nb>1?`, déclarant ${n+1}`:'';
+ const salaires=rang.map(n=>bilNum(liste(D.salaires)[n])), pensions=rang.map(n=>bilNum(liste(D.pensions)[n]));
+ const micros=rang.map(n=>{ const m=liste(D.micros)[n]; return m&&typeof m==='object'?bilCotisMicro(m.ca,m.activite):null; });
+ const charge=bilEnfantsFisc(D.enfants), nbCharge=charge.length, isole=!couple&&!!D.isole&&nbCharge>0;
+ const parts=partsBase+charge.reduce((s,e,i)=>s+bilP(i<2?'ir_part_enf12':'ir_part_enf3'),0)+(isole?bilP('ir_part_isole'):0);
  const tx=bilP('ir_abat_taux'), amin=bilP('ir_abat_min'), amax=bilP('ir_abat_max');
- let rni=0;
+ const abats=salaires.map(s=>s>0?Math.min(s,Math.max(amin,Math.min(amax,s*tx))):0), revSal=salaires.map((s,n)=>s>0?Math.round(s-abats[n]):0);
  salaires.forEach((s,n)=>{ if(!(s>0)) return;
-  const abat=Math.min(s,Math.max(amin,Math.min(amax,s*tx)));
-  rni+=Math.round(s-abat);
-  lignes.push({id:'abat',l:`Abattement de 10 % pour frais professionnels${salaires.length>1?`, déclarant ${n+1}`:''}`,base:bilR(s),taux:tx,montant:bilR(abat)}); });
- const bar=bilP('ir_bareme'), q=rni/parts, brut=bilBareme(q,bar)*parts;
- const tmi=bar.reduce((t,[seuil,taux])=>q>seuil?taux:t,0);
- const seuil=bilP(couple?'ir_decote_couple':'ir_decote_seul');
- const decote=Math.min(Math.round(Math.max(0,seuil-bilP('ir_decote_taux')*brut)),Math.round(brut));
- const cehr=Math.round(bilBareme(rni,bilP(couple?'ir_cehr_couple':'ir_cehr_seul')));
+  lignes.push({id:'abat',l:`Abattement de 10 % pour frais professionnels${decl(n)}`,base:bilR(s),taux:tx,montant:bilR(abats[n])}); });
+ /* pensions : 10 %, avec un minimum par pensionné et un plafond pour le foyer, réparti au prorata */
+ const txPen=bilP('ir_abatpen_taux'), abPen0=pensions.map(p=>p>0?Math.min(p,Math.max(bilP('ir_abatpen_min'),p*txPen)):0), totPen=abPen0.reduce((s,x)=>s+x,0);
+ const abPen=abPen0.map(x=>totPen>bilP('ir_abatpen_max')?x*bilP('ir_abatpen_max')/totPen:x), revPen=pensions.map((p,n)=>p>0?Math.round(p-abPen[n]):0);
+ pensions.forEach((p,n)=>{ if(!(p>0)) return;
+  lignes.push({id:'abatpen',l:`Abattement de 10 % sur les pensions${decl(n)}`,base:bilR(p),taux:txPen,montant:bilR(abPen[n])}); });
+ /* micro-entrepreneur : le bénéfice est le chiffre d'affaires moins un abattement forfaitaire */
+ const revMic=micros.map(m=>m?Math.round(m.benefice):0);
+ micros.forEach((m,n)=>{ if(!m||!(m.brut>0)) return;
+  lignes.push({id:'abatmicro',l:`Abattement forfaitaire du micro-entrepreneur${decl(n)}`,base:bilR(m.brut),taux:bilP('mi_abat_'+m.activite),montant:bilR(m.brut-m.benefice)}); });
+ const revenusPro=rang.map(n=>revSal[n]+revMic[n]), revenus=rang.map(n=>revenusPro[n]+revPen[n]), brutGlobal=revenus.reduce((s,x)=>s+x,0);
+ /* abattement des 65 ans et plus : par déclarant, selon le revenu net global */
+ const ageAbat=bilP('ir_age_abat'), nbAges=liste(D.ages).slice(0,partsBase).filter(a=>{ const x=typeof a==='number'?a:parseFloat(a); return Number.isFinite(x)&&x>=ageAbat; }).length;
+ const abatAgeDe=g=>Math.min(g,nbAges*(g<=bilP('ir_abat_age_seuil_1')?bilP('ir_abat_age_1'):g<=bilP('ir_abat_age_seuil_2')?bilP('ir_abat_age_2'):0));
+ const imposable=per=>{ const g=brutGlobal-per; return g-abatAgeDe(g); };
+ if(abatAgeDe(brutGlobal)>0) lignes.push({id:'abatage',l:"Abattement des 65 ans et plus, sous condition de revenu",base:brutGlobal,taux:null,montant:abatAgeDe(brutGlobal)});
+ const rni=imposable(0), bar=bilP('ir_bareme'), demi=(parts-partsBase)*2;
+ const plafond=isole?bilP('ir_qf_plaf_isole')+Math.max(0,demi-2)*bilP('ir_qf_plaf'):demi*bilP('ir_qf_plaf');
+ const seuilRec=bilP('ir_recouvrement'), recouvre=x=>x>0&&x<seuilRec?0:x;
+ /* barème, plafonnement du quotient familial, décote et contribution sur les hauts revenus, pour un revenu imposable donné */
+ const noyau=r=>{
+  const surParts=bilBareme(r/parts,bar)*parts, surBase=bilBareme(r/partsBase,bar)*partsBase;
+  const brut=Math.max(surParts,surBase-plafond), plafonne=demi>0&&brut>surParts+1e-9;
+  const q=r/(plafonne?partsBase:parts), tmi=bar.reduce((t,[seuil,taux])=>q>seuil?taux:t,0);
+  const decote=Math.min(Math.round(Math.max(0,bilP(couple?'ir_decote_couple':'ir_decote_seul')-bilP('ir_decote_taux')*brut)),Math.round(brut));
+  return {surParts,brut,plafonne,tmi,decote,net:Math.max(0,Math.round(brut-decote)),cehr:Math.round(bilBareme(r,bilP(couple?'ir_cehr_couple':'ir_cehr_seul')))};
+ };
+ const N=noyau(rni), plafonnement=N.plafonne?bilR(N.brut-N.surParts):0;
  /* en dessous du seuil de mise en recouvrement, l'impôt n'est pas réclamé */
- const calcule=Math.max(0,Math.round(brut-decote)), nonReclame=calcule>0&&calcule<bilP('ir_recouvrement')?calcule:0;
- const impot=calcule-nonReclame+cehr;
- lignes.push({id:'bareme',l:`Barème progressif sur ${parts} part${parts>1?'s':''}`,base:rni,taux:tmi,montant:bilR(brut)});
- if(decote>0) lignes.push({id:'decote',l:"Décote, qui allège les petits impôts",base:bilR(brut),taux:bilP('ir_decote_taux'),montant:decote});
- if(nonReclame>0) lignes.push({id:'recouvrement',l:`Impôt inférieur à ${bilP('ir_recouvrement')} € : non réclamé`,base:calcule,taux:null,montant:nonReclame});
- if(cehr>0) lignes.push({id:'cehr',l:"Contribution exceptionnelle sur les hauts revenus",base:rni,taux:null,montant:cehr});
- return {rni,parts,impotBrut:bilR(brut),decote,cehr,nonReclame,impot,tmi,lignes};
+ const nonReclame=N.net>0&&N.net<seuilRec?N.net:0, impot=N.net-nonReclame+N.cehr, nbParts=String(parts).replace('.',',');
+ lignes.push({id:'bareme',l:`Barème progressif sur ${nbParts} part${parts>=2?'s':''}`,base:rni,taux:N.tmi,montant:bilR(N.surParts)});
+ if(N.plafonne) lignes.push({id:'plafqf',l:"Plafonnement du quotient familial",base:bilR(plafond),taux:null,montant:plafonnement});
+ if(N.decote>0) lignes.push({id:'decote',l:"Décote, qui allège les petits impôts",base:bilR(N.brut),taux:bilP('ir_decote_taux'),montant:N.decote});
+ if(nonReclame>0) lignes.push({id:'recouvrement',l:`Impôt inférieur à ${seuilRec} € : non réclamé`,base:N.net,taux:null,montant:nonReclame});
+ if(N.cehr>0) lignes.push({id:'cehr',l:"Contribution exceptionnelle sur les hauts revenus",base:rni,taux:null,montant:N.cehr});
+ /* effet du quotient familial : impôt de la même déclaration sans enfant, moins l'impôt avec */
+ const effetQf=nbCharge>0?bilImpot({salaires,pensions,micros:liste(D.micros),ages:D.ages,couple}).impot-impot:0;
+
+ /* ----- avantages fiscaux, dans l'ordre où ils s'appliquent ----- */
+ const avantages=[], P1=bilP('pass_n1');
+ /* 1. épargne retraite : déduite du revenu, dans la limite du plafond de chaque déclarant (plafonds additionnés pour un couple) */
+ const plafPer=Array.from({length:partsBase},(_,n)=>Math.max(bilP('per_min')*P1,Math.min(bilP('per_taux')*(revenusPro[n]||0),bilP('per_max')*P1))).reduce((s,x)=>s+x,0);
+ const perDeduit=Math.min(bilNum(D.per),plafPer,brutGlobal), A=perDeduit>0?noyau(imposable(perDeduit)):N;
+ let reste=A.net, courant=recouvre(reste);
+ const ecoPer=impot-(courant+N.cehr);
+ if(perDeduit>0&&ecoPer>0) avantages.push({id:'per',l:"Épargne retraite déduite du revenu",montant:ecoPer,
+  txt:`${bilEur(perDeduit)} déduits${bilNum(D.per)>perDeduit?` (plafond de ${bilEur(plafPer)})`:''} : impôt économisé`});
+ /* 2. réductions : imputées dans la limite de l'impôt, jamais remboursées */
+ const reduit=(id,l,montant,txt)=>{ if(!(montant>0)) return; reste=Math.max(0,reste-montant); const apres=recouvre(reste);
+  if(courant-apres>0) avantages.push({id,l,montant:courant-apres,txt:txt+(montant>courant-apres?` ; limitée à l'impôt restant`:'')}); courant=apres; };
+ const ageCol=bilP('ars_age_college'), ageLyc=bilP('ars_age_lycee'), ageMaj=bilP('ars_age_max');
+ const nCol=charge.filter(e=>{ const a=bilAge(e.age); return a>=ageCol&&a<ageLyc; }).length, nLyc=charge.filter(e=>{ const a=bilAge(e.age); return a>=ageLyc&&a<ageMaj; }).length, nSup=charge.filter(e=>bilAge(e.age)>=ageMaj&&!!e.etudiant).length;
+ const scol=nCol*bilP('ri_scol_college')+nLyc*bilP('ri_scol_lycee')+nSup*bilP('ri_scol_sup');
+ reduit('scolarite',"Réduction pour enfants scolarisés",scol,[nCol&&`${nCol} au collège`,nLyc&&`${nLyc} au lycée`,nSup&&`${nSup} étudiant${nSup>1?'s':''}`].filter(Boolean).join(', ')+" (niveau déduit de l'âge)");
+ const d75=bilNum(D.dons75), d66=bilNum(D.dons66), p75=bilP('ri_dons75_plaf');
+ const base66=Math.min(d66+Math.max(0,d75-p75),bilP('ri_dons_plaf')*imposable(perDeduit));
+ reduit('dons',"Réduction pour dons",Math.round(bilP('ri_dons75_taux')*Math.min(d75,p75)+bilP('ri_dons_taux')*base66),
+  `${bilPct(bilP('ri_dons75_taux'))} de ${bilEur(Math.min(d75,p75))}, ${bilPct(bilP('ri_dons_taux'))} de ${bilEur(base66)}`);
+ /* 3. crédits d'impôt : remboursés s'ils dépassent l'impôt */
+ const depGarde=(Array.isArray(D.garde)?D.garde:[]).map(x=>Math.min(bilNum(x),bilP('ci_garde_plaf'))), ciGarde=Math.round(bilP('ci_garde_taux')*depGarde.reduce((s,x)=>s+x,0));
+ if(ciGarde>0) avantages.push({id:'garde',l:"Crédit d'impôt pour la garde hors du domicile",montant:ciGarde,txt:`${bilPct(bilP('ci_garde_taux'))} de ${bilEur(depGarde.reduce((s,x)=>s+x,0))} de dépenses, CMG déduit (${bilEur(bilP('ci_garde_plaf'))} au plus par enfant)`});
+ const plafDom=Math.min(bilP('ci_dom_plaf')+bilP('ci_dom_plaf_enf')*nbCharge,bilP('ci_dom_plaf_max')), depDom=Math.min(bilNum(D.domicile),plafDom), ciDom=Math.round(bilP('ci_dom_taux')*depDom);
+ if(ciDom>0) avantages.push({id:'domicile',l:"Crédit d'impôt pour l'emploi à domicile",montant:ciDom,txt:`${bilPct(bilP('ci_dom_taux'))} de ${bilEur(depDom)} de dépenses${bilNum(D.domicile)>plafDom?` (plafond de ${bilEur(plafDom)})`:''}`});
+ const impotNet=courant+N.cehr-ciGarde-ciDom;
+ /* rni : revenu imposable avant épargne retraite (base de l'impôt « avant avantages ») ; rng, abatAge et rfr : après déduction de l'épargne retraite */
+ return {rni,revenus,revenusPro,rng:brutGlobal-perDeduit,abatAge:abatAgeDe(brutGlobal-perDeduit),rfr:imposable(perDeduit)+perDeduit,parts,partsBase,nbCharge,impotBrut:bilR(N.brut),plafonnement,decote:N.decote,cehr:N.cehr,nonReclame,impot,tmi:N.tmi,effetQf,lignes,
+  avantages,totalAvantages:impot-impotNet,impotNet,perDeduit:bilR(perDeduit)};
 }
 
 /* Bilan annuel d'un foyer : ce qu'il verse, ce qu'il reçoit, et la cascade du coût employeur au revenu disponible.
-   saisie = { foyer:'seul'|'couple'|'union_libre', adultes:[{age, situation, brut}], patronales } */
+   saisie = { foyer:'seul'|'couple'|'union_libre', adultes:[{age, situation, brut}], patronales, isole, logement,
+              enfants:[{age, etudiant, garde:{mode, heures, cout}}], fisc:{domicile, dons75, dons66, per} } */
+const BIL_MAX_ENFANTS=6;
 function bilCalcule(saisie){
- const S=saisie||{}, foyer=S.foyer||'seul', src='bil';
- const liste=(S.adultes||[]).slice(0,foyer==='seul'?1:2);
- const adultes=liste.map(a=>{ const sit=(a&&a.situation)||'sans_revenu', prive=sit==='prive_non_cadre'||sit==='prive_cadre';
-  return {situation:sit,cot:prive?bilCotisPrive(a.brut,sit==='prive_cadre'):null}; });
+ const S=saisie||{}, foyer=S.foyer||'seul', src='bil', seul=foyer==='seul';
+ const liste=(Array.isArray(S.adultes)?S.adultes:[]).slice(0,seul?1:2).map(a=>(a&&typeof a==='object')?a:{});
+ const pct=v=>{ const x=typeof v==='number'?v:parseFloat(v); return Number.isFinite(x)?x/100:0; };
+ /* prélèvements d'un adulte selon sa situation ; ref = {rfr, parts} de sa déclaration, pour le taux de CSG d'un retraité */
+ const cotise=(a,ref)=>{ const sit=a.situation;
+  if(sit==='prive_non_cadre'||sit==='prive_cadre') return {situation:sit,nature:'salaire',cot:bilCotisPrive(a.brut,sit==='prive_cadre')};
+  if(sit==='fonct_etat'||sit==='fonct_local') return {situation:sit,nature:'salaire',cot:bilCotisFonct(a.brut,a.primes,sit==='fonct_local'?'local':'etat')};
+  if(sit==='micro') return {situation:sit,nature:'micro',cot:bilCotisMicro(a.brut,a.activite)};
+  if(sit==='retraite') return {situation:sit,nature:'pension',cot:bilCotisRetraite(a.brut,pct(a.partCompl),ref?ref.rfr:undefined,ref?ref.parts:undefined)};
+  return {situation:'sans_revenu',nature:null,cot:null}; };
+ /* ----- la famille ----- */
+ const enfants=(Array.isArray(S.enfants)?S.enfants:[]).slice(0,BIL_MAX_ENFANTS).map(e=>e||{}), agesConnus=enfants.map(e=>bilAge(e.age)).filter(a=>a!=null);
+ const isole=seul&&!!S.isole, fisc=(S.fisc&&typeof S.fisc==='object')?S.fisc:{};
+ const netTotal=ds=>ds.reduce((s,x)=>s+x.impotNet,0);
+ /* une passe de calcul : cotisations, prestations, déclarations de revenus */
+ const passe=(refs,rattachement)=>{
+  const adultes=liste.map((a,n)=>cotise(a,refs&&refs[n]));
+  const de=(nature,f,vide)=>adultes.map((a,n)=>a.nature===nature?f(a,n):vide);
+  const R={salaires:de('salaire',a=>a.cot.netImposable,0),pensions:de('pension',a=>a.cot.netImposable,0),micros:de('micro',(a,n)=>({ca:liste[n].brut,activite:liste[n].activite}),null),ages:liste.map(a=>a.age)};
+  /* ressources des prestations : revenus de tous les adultes après abattement, comme si 2024 ressemblait à 2026 */
+  const base=bilImpot(R), ressources=base.revenus.reduce((s,x)=>s+x,0);
+  /* deux revenus d'activité : salaires et bénéfices seulement, pas les pensions */
+  const biactif=!seul&&base.revenusPro.length===2&&base.revenusPro.every(r=>r>=bilP('pf_biactif')*bilP('pass_n2'));
+  const actif=adultes.some(a=>(a.nature==='salaire'||a.nature==='micro')&&a.cot.brut>0);
+  const fam=bilFamille({enfants,couple:!seul,biactif},ressources), cmg=bilCmg({enfants,isole,actif},ressources);
+  /* prime d'activité : salaire net ou bénéfice du micro-entrepreneur ; les pensions nettes comptent dans les autres ressources */
+  const pa=bilPrimeActivite({couple:!seul,nbEnfants:agesConnus.filter(a=>a<bilP('pa_age_enf')).length,isoleMajore:isole&&agesConnus.some(a=>a<bilP('ab_age')),logement:!!S.logement},
+   adultes.map(a=>a.nature==='salaire'?a.cot.net/12:a.nature==='micro'?a.cot.benefice/12:0),fam.mensuel.af+fam.mensuel.ab+fam.mensuel.cfBase,
+   adultes.reduce((s,a)=>s+(a.nature==='pension'?a.cot.net/12:0),0));
+  /* garde : la dépense restant après le CMG ouvre droit à un crédit d'impôt (hors du domicile) ou rejoint l'emploi à domicile */
+  const garde=[]; let domicile=bilNum(fisc.domicile), gardeDomicile=false;
+  enfants.forEach((e,i)=>{ const a=bilAge(e.age), mode=e.garde&&e.garde.mode, depense=Math.max(0,cmg.coutParEnfant[i]-cmg.parEnfant[i]);
+   if(a==null||!(depense>0)) return;
+   if(mode==='gad'){ domicile+=depense; gardeDomicile=true; } else if(a-1<bilP('ci_garde_age')) garde.push(depense); });
+  const avantages={enfants,per:fisc.per,dons75:fisc.dons75,dons66:fisc.dons66,garde,domicile};
+  const un=n=>({salaires:[R.salaires[n]||0],pensions:[R.pensions[n]||0],micros:[R.micros[n]||null],ages:[R.ages[n]]});
+  const separees=k=>[0,1].map(n=>bilImpot({...un(n),couple:false,...(n===k?avantages:{})}));
+  const declarations=foyer==='union_libre'?separees(rattachement):[bilImpot({...R,couple:foyer==='couple',isole,...avantages})];
+  return {adultes,ressources,biactif,fam,cmg,pa,gardeDomicile,declarations,rattachement};
+ };
+ /* Taux de CSG des retraités. Il dépend du revenu fiscal de référence d'il y a deux ans ; la situation étant supposée stable, on cherche le taux
+    que confirme le revenu fiscal qu'il produit, en partant du plus bas possible (CSG au taux plein). Si aucun ne se confirme (bande étroite sous
+    un seuil), le plus bas est retenu et signalé. */
+ const refsDe=Y=>Y.adultes.map((a,n)=>{ if(a.nature!=='pension') return null; const d=Y.declarations[foyer==='union_libre'?n:0]; return {rfr:d.rfr,parts:d.parts,limite:false}; });
+ const tauxDe=refs=>refs.map(r=>r?bilTauxCsgRetraite(r.rfr,r.parts):'').join();
+ const stable=ratt=>{
+  let Y=passe(null,ratt), refs=refsDe(Y), bas=null;
+  if(!refs.some(Boolean)) return {X:Y,refs};
+  for(let i=0;i<4;i++){ Y=passe(refs,ratt); const suite=refsDe(Y); if(!bas) bas={X:Y,refs:suite};
+   if(tauxDe(suite)===tauxDe(refs)) return {X:Y,refs:suite};
+   refs=suite; }
+  return {X:bas.X,refs:bas.refs.map(r=>r&&{...r,limite:true})};
+ };
+ /* en union libre, chacun fait sa déclaration : les enfants et les avantages vont sur celle des deux qui donne le total le plus bas d'impôt et de prélèvements sur les pensions */
+ const cout=S=>netTotal(S.X.declarations)+S.X.adultes.reduce((s,a)=>s+(a.nature==='pension'?a.cot.brut-a.cot.net:0),0);
+ let choix=stable(0);
+ if(foyer==='union_libre'){ const autre=stable(1); if(cout(autre)<cout(choix)-1e-9) choix=autre; }
+ const X=choix.X, rfrRetraite=choix.refs;
+ const {adultes,ressources,biactif,fam,cmg,pa,gardeDomicile,declarations,rattachement}=X;
  const actifs=adultes.map((a,n)=>({...a,n})).filter(a=>a.cot);
- const imposable=adultes.map(a=>a.cot?a.cot.netImposable:0);
- const declarations=foyer==='union_libre'?imposable.map(x=>bilImpot({salaires:[x],couple:false})):[bilImpot({salaires:imposable,couple:foyer==='couple'})];
+ const som=f=>bilR(actifs.reduce((s,a)=>s+f(a.cot),0));
+ const tousSalaires=actifs.every(a=>a.nature==='salaire'), sansEmployeur=actifs.length>0&&actifs.every(a=>a.nature!=='salaire'), avecPat=!!S.patronales&&!sansEmployeur;
+ const tousMicro=actifs.length>0&&actifs.every(a=>a.nature==='micro');
+ /* le taux de CSG d'un retraité repose sur un revenu fiscal estimé : ses prélèvements sont « simplifiés » */
+ const precPrel=actifs.some(a=>a.nature==='pension')?'simplifie':'exact';
+ /* ----- ce que je verse ----- */
  const qui=n=>adultes.length>1?`Adulte ${n+1} : `:'';
  const detail=(parts,signe)=>actifs.flatMap(a=>a.cot.lignes.filter(l=>parts.includes(l.part)).map(l=>(
   {id:l.id,l:qui(a.n)+l.l,base:l.base,taux:l.taux,montant:l.part==='red'&&signe?-l.montant:l.montant})));
- const som=f=>bilR(actifs.reduce((s,a)=>s+f(a.cot),0));
- const salariales=som(c=>c.salariales), csg=som(c=>c.csgDed+c.csgNonDed+c.crds), patNettes=som(c=>c.patronales-c.reduction);
+ const salariales=som(c=>c.salariales), casa=som(c=>c.casa||0), csg=som(c=>c.csgDed+c.csgNonDed+c.crds+(c.casa||0)), patNettes=som(c=>c.patronales-c.reduction);
+ const DEDUC=['abat','abatpen','abatmicro','abatage'];
+ const libPat=som(c=>c.reduction)>0?"Cotisations patronales, réduction déduite":"Cotisations patronales";
+ /* micro-entrepreneur : la CSG et la CRDS sont comprises dans son taux unique, il n'y a pas de ligne à part */
+ const csgComprise=csg===0&&actifs.some(a=>a.nature==='micro'&&a.cot.brut>0);
  const impot=declarations.reduce((s,d)=>s+d.impot,0);
  const verse=[
-  {id:'cot_sal',l:"Cotisations salariales",montant:salariales,precision:'exact',detail:detail(['sal']),src},
-  {id:'csg',l:"CSG et CRDS",montant:csg,precision:'exact',detail:detail(['csg']),src},
-  {id:'ir',l:"Impôt sur le revenu",montant:impot,precision:'exact',src,
-   detail:declarations.flatMap((d,n)=>d.lignes.map(l=>({id:l.id,l:(declarations.length>1?`Déclaration ${n+1} : `:'')+l.l,base:l.base,taux:l.taux,montant:l.id==='abat'?null:l.id==='decote'||l.id==='recouvrement'?-l.montant:l.montant,...(l.id==='abat'?{deduit:l.montant}:{})})))}];
- if(S.patronales) verse.push({id:'cot_pat',l:"Cotisations patronales, réduction déduite",montant:patNettes,precision:'simplifie',detail:detail(['pat','red'],true),src});
- const recu=[];
+  {id:'cot_sal',l:tousSalaires?"Cotisations salariales":"Cotisations sociales",montant:salariales,precision:precPrel,detail:detail(['sal']),src},
+  ...(csgComprise?[]:[{id:'csg',l:casa>0?"CSG, CRDS et contribution d'autonomie":"CSG et CRDS",montant:csg,precision:precPrel,detail:detail(['csg']),src}]),
+  {id:'ir',l:"Impôt sur le revenu, avant avantages fiscaux",montant:impot,precision:'exact',src,
+   detail:declarations.flatMap((d,n)=>d.lignes.map(l=>({id:l.id,l:(declarations.length>1?`Déclaration ${n+1}${n===rattachement&&d.nbCharge>0?', avec les enfants':''} : `:'')+l.l,base:l.base,taux:l.taux,montant:DEDUC.includes(l.id)?null:l.id==='decote'||l.id==='recouvrement'?-l.montant:l.montant,...(DEDUC.includes(l.id)?{deduit:l.montant}:{})})))}];
+ if(avecPat) verse.push({id:'cot_pat',l:libPat,montant:patNettes,precision:'simplifie',detail:detail(['pat','red'],true),src});
+ /* ----- ce que je reçois en argent ----- */
+ /* la pension est un versement public : elle figure dans ce que je reçois, telle que saisie */
+ const pens=actifs.filter(a=>a.nature==='pension'&&a.cot.brut>0), tPension=bilR(pens.reduce((s,a)=>s+a.cot.brut,0)), recu=[];
+ if(tPension>0) recu.push({id:'pension',l:pens.length>1?"Pensions de retraite":"Pension de retraite",montant:tPension,precision:'saisi',src,
+  detail:pens.map(a=>({id:'pension',l:qui(a.n)+"Pension brute, avant prélèvements",txt:"montant saisi",montant:a.cot.brut}))});
+ recu.push(...fam.lignes,...cmg.lignes); if(pa.ligne) recu.push(pa.ligne);
+ const avs=declarations.flatMap(d=>d.avantages), tAv=avs.reduce((s,a)=>s+a.montant,0);
+ /* « barème exact » seulement pour des dons ou de l'emploi à domicile saisis ; le reste repose sur une hypothèse (niveau scolaire déduit de l'âge, CMG estimé, plafond d'épargne retraite) */
+ if(tAv>0) recu.push({id:'fisc',l:"Avantages fiscaux",montant:tAv,precision:gardeDomicile||avs.some(a=>a.id!=='dons'&&a.id!=='domicile')?'simplifie':'exact',src,
+  detail:avs.map(a=>({id:a.id,l:a.l,txt:a.txt,montant:a.montant}))});
  const brut=som(c=>c.brut), coutEmployeur=som(c=>c.coutEmployeur), net=som(c=>c.net);
- const tVerse=bilR(verse.reduce((s,l)=>s+l.montant,0)), tRecu=bilR(recu.reduce((s,l)=>s+l.montant,0));
- const denom=S.patronales?coutEmployeur:brut;
- const tot={brut,coutEmployeur,net,impot,dispo:bilR(net-impot),verse:tVerse,recu:tRecu,solde:bilR(tRecu-tVerse),taux:denom>0?tVerse/denom:0};
+ /* directs : ce qui est prélevé sur les revenus (cotisations, CSG, impôt) ; les taxes sur la consommation s'y ajoutent plus bas */
+ const directs=bilR(verse.reduce((s,l)=>s+l.montant,0)), tRecu=bilR(recu.reduce((s,l)=>s+l.montant,0));
+ const denom=avecPat?coutEmployeur:brut, horsPension=bilR(tRecu-tPension);
+ /* micro-entrepreneur : dépenses professionnelles au forfait fiscal = chiffre d'affaires − cotisations − bénéfice forfaitaire */
+ const frais=bilR(actifs.reduce((s,a)=>s+(a.nature==='micro'?Math.max(0,a.cot.net-a.cot.benefice):0),0));
+ /* revenu disponible : la pension est déjà dans le revenu net, elle n'est pas ajoutée une seconde fois */
+ const dispo=bilR(net-frais-impot+horsPension);
+ /* ----- consommation et logement : TVA estimée sur le revenu disponible, accise sur les carburants, taxe foncière ----- */
+ const C=(S.conso&&typeof S.conso==='object')?S.conso:{}, uc=bilUc(seul?1:2,enfants.map(e=>e.age));
+ const conso=bilConso(dispo,{uc,tf:C.tf,epargne:C.epargne,litres:C.litres,carburant:C.carburant});
+ verse.push(...conso.lignes);
+ const tVerse=bilR(directs+conso.total), solde=bilR(tRecu-tVerse);
+ /* ----- services publics, comptés à part du solde en argent ----- */
+ const serv=bilServices({adultes:liste.map(a=>({age:a.age})),enfants,uc});
+ const tot={brut,coutEmployeur,net,impot,pension:tPension,frais,dispo,directs,conso:conso.total,verse:tVerse,recu:tRecu,solde,taux:denom>0?tVerse/denom:0,
+  services:serv.total,soldeServices:bilR(solde+serv.total),reste:bilR(dispo-conso.total)};
+ const nomTaxes=[conso.tva>0&&"TVA",conso.accise>0&&"taxe sur les carburants",conso.tf>0&&"taxe foncière"].filter(Boolean).join(', ')||"TVA";
  const cascade=[
-  {k:'cout',l:"Coût total pour l'employeur",montant:coutEmployeur,type:'niveau'},
-  {k:'pat',l:"Cotisations patronales, réduction déduite",montant:patNettes,type:'moins'},
-  {k:'brut',l:"Salaire brut",montant:brut,type:'niveau'},
-  {k:'sal',l:"Cotisations salariales, CSG et CRDS",montant:bilR(salariales+csg),type:'moins'},
-  {k:'net',l:"Salaire net",montant:net,type:'niveau'},
-  {k:'ir',l:"Impôt sur le revenu",montant:impot,type:'moins'},
-  {k:'dispo',l:"Revenu disponible",montant:tot.dispo,type:'niveau'}];
- return {adultes,declarations,verse,recu,cascade,tot};
+  ...(sansEmployeur?[]:[{k:'cout',l:tousSalaires?"Coût total pour l'employeur":"Coût employeur et autres revenus bruts",montant:coutEmployeur,type:'niveau'},
+  {k:'pat',l:libPat,montant:patNettes,type:'moins'}]),
+  {k:'brut',l:tousSalaires?"Salaire brut":tousMicro?"Chiffre d'affaires":"Revenu brut",montant:brut,type:'niveau'},
+  {k:'sal',l:(tousSalaires?"Cotisations salariales":"Cotisations sociales")+(csgComprise?", CSG et CRDS comprises":casa>0?", CSG, CRDS et autonomie":", CSG et CRDS"),montant:bilR(salariales+csg),type:'moins'},
+  {k:'net',l:tousSalaires?"Salaire net":tousMicro?"Chiffre d'affaires après cotisations":"Revenu net",montant:net,type:'niveau'},
+  ...(frais>0?[{k:'frais',l:"Dépenses professionnelles, au forfait fiscal",montant:frais,type:'moins'}]:[]),
+  {k:'ir',l:"Impôt sur le revenu, avant avantages",montant:impot,type:'moins'},
+  {k:'recu',l:"Prestations et avantages fiscaux",montant:horsPension,type:'plus'},
+  {k:'dispo',l:"Revenu disponible",montant:tot.dispo,type:'niveau'},
+  {k:'taxes',l:nomTaxes[0].toUpperCase()+nomTaxes.slice(1),montant:tot.conso,type:'moins'},
+  {k:'reste',l:"Reste pour consommer hors taxes et épargner",montant:tot.reste,type:'niveau'}];
+ const info={csgRetraite:adultes.map(a=>a.nature==='pension'?a.cot.taux:null),rfrRetraite,sansEmployeur,tousSalaires,
+  microHorsPlafond:actifs.filter(a=>a.nature==='micro'&&a.cot.horsPlafond).map(a=>({n:a.n,plafond:a.cot.plafond})),effetQf:declarations.reduce((s,d)=>s+d.effetQf,0),ressources,parts:declarations.map(d=>d.parts),biactif,nbEnfants:enfants.length,nbPf:fam.nbPf,rattachement,
+  plafonne:declarations.some(d=>d.plafonnement>0),
+  conso:{uc:conso.uc,niveauVie:conso.niveauVie,tranche:conso.tranche,epargneDefaut:conso.epargneDefaut,epargne:conso.epargne,conso:conso.conso}};
+ return {adultes,declarations,verse,recu,services:serv.lignes,ouva:bilOuVa(tVerse),cascade,tot,info};
 }
 
 /* ----- affichage de l'onglet « Mon bilan » ----- */
-const BIL_SIT=[['prive_non_cadre',"Salarié du privé, non-cadre",1],['prive_cadre',"Salarié du privé, cadre",1],['sans_revenu',"Sans revenu",1],
- ['fonct',"Fonctionnaire (bientôt)",0],['micro',"Micro-entrepreneur (bientôt)",0],['retraite',"Retraité (bientôt)",0]];
+const BIL_SIT=[['prive_non_cadre',"Salarié du privé, non-cadre"],['prive_cadre',"Salarié du privé, cadre"],['fonct_etat',"Fonctionnaire de l'État"],
+ ['fonct_local',"Fonctionnaire territorial ou hospitalier"],['micro',"Micro-entrepreneur"],['retraite',"Retraité"],['sans_revenu',"Sans revenu"]];
+/* Libellé du montant principal, selon la situation */
+const BIL_MONTANT={prive:"Salaire brut annuel, en euros",fonct:"Traitement indiciaire brut annuel, en euros",micro:"Chiffre d'affaires annuel, en euros",retraite:"Pension brute annuelle, base et complémentaire, en euros"};
+const bilFonct=s=>s==='fonct_etat'||s==='fonct_local';
+/* Valeurs de départ, modifiables : primes proposées en part du traitement, part de la retraite complémentaire dans la pension (en pour cent) */
+const BIL_PRIMES_DEPART=0.2, BIL_COMPL_DEPART=30, BIL_AGE_RETRAITE_DEPART=67, BIL_AGE_RETRAITE_MIN=60;
+/* primesAuto : les primes suivent le traitement tant qu'elles n'ont pas été saisies à la main */
+const bilAdulteNeuf=(situation,brut)=>({age:35,situation,brut,primes:0,primesAuto:true,activite:'services',partCompl:BIL_COMPL_DEPART});
+const bilPrimesDepart=brut=>Math.round(BIL_PRIMES_DEPART*bilNum(brut));
+/* SMIC brut annuel d'un temps plein : cinq mois au taux de janvier, sept mois au taux de juin */
+const bilSmicAnnuel=()=>Math.round((5*bilP('smic_h_jan')+7*bilP('smic_h_juin'))*bilP('smic_heures'));
+/* Foyers d'exemple : montants ronds, sauf le SMIC et le salaire médian (Insee). Chacun remplace toute la saisie. */
+const BIL_PROFILS=[
+ ['smic',"Salarié au SMIC",()=>({foyer:'seul',isole:true,adultes:[bilAdulteNeuf('prive_non_cadre',bilSmicAnnuel())]})],
+ ['famille',"Couple aux salaires médians, deux enfants",()=>({foyer:'couple',adultes:[bilAdulteNeuf('prive_non_cadre',bilP('profil_median')),bilAdulteNeuf('prive_non_cadre',bilP('profil_median'))],enfants:[6,10]})],
+ ['cadre',"Cadre seul",()=>({foyer:'seul',isole:true,adultes:[bilAdulteNeuf('prive_cadre',60000)]})],
+ ['fonct',"Fonctionnaire, parent isolé",()=>({foyer:'seul',isole:true,adultes:[{...bilAdulteNeuf('fonct_etat',28000),primes:5600}],enfants:[8]})],
+ ['micro',"Micro-entrepreneur",()=>({foyer:'seul',isole:true,adultes:[bilAdulteNeuf('micro',40000)]})],
+ ['retraites',"Couple de retraités",()=>({foyer:'couple',adultes:[{...bilAdulteNeuf('retraite',22000),age:70},{...bilAdulteNeuf('retraite',16000),age:68}]})]];
+/* Saisie complète d'un foyer : celle de l'ouverture, ou celle d'un exemple */
+function bilSaisieNeuve(d){
+ const D=d||{}, ad=D.adultes||[];
+ return {foyer:D.foyer||'seul',adultes:[ad[0]||bilAdulteNeuf('prive_non_cadre',30000),ad[1]||bilAdulteNeuf('sans_revenu',0)],patronales:false,isole:D.isole!==false&&(D.foyer||'seul')==='seul',logement:false,
+  enfants:(D.enfants||[]).map(age=>({...bilEnfantNeuf(),age})),fisc:{domicile:0,dons75:0,dons66:0,per:0},conso:{tf:'',epargne:'',litres:'',carburant:'e10'},open:{}};
+}
 const BIL_FOYER=[['seul',"Personne seule"],['couple',"Couple marié ou pacsé"],['union_libre',"Couple en union libre"]];
 const BIL_PREC={exact:["barème exact","Barème officiel appliqué tel quel."],simplifie:["simplifié","Barème officiel appliqué avec des hypothèses annoncées."],
  estimation:["estimation","Moyenne nationale ou ordre de grandeur."],saisi:["saisi","Montant que vous avez indiqué."]};
 const bilEur=x=>{ const r=Math.round(x); return (r<0?'−':'')+Math.abs(r).toLocaleString('fr-FR')+'\u00a0€'; };
 const bilPct=(t,d=3)=>(t*100).toLocaleString('fr-FR',{maximumFractionDigits:d})+'\u00a0%';
 function bilDetTxt(d){
+ if(d.txt) return d.txt;
  if(d.id==='abat') return `${bilEur(d.base)} de net imposable, dont ${bilEur(d.deduit)} déduits : l'impôt porte sur ${bilEur(d.base-d.deduit)}`;
+ if(d.id==='abatpen') return `${bilEur(d.base)} de pension imposable, dont ${bilEur(d.deduit)} déduits : l'impôt porte sur ${bilEur(d.base-d.deduit)}`;
+ if(d.id==='abatmicro') return `${bilEur(d.base)} de chiffre d'affaires, dont ${bilEur(d.deduit)} déduits : l'impôt porte sur ${bilEur(d.base-d.deduit)}`;
+ if(d.id==='abatage') return `revenu de ${bilEur(d.base)}, dont ${bilEur(d.deduit)} déduits`;
  if(d.id==='bareme') return `revenu imposable de ${bilEur(d.base)}, dernière tranche à ${bilPct(d.taux)}`;
  if(d.id==='decote') return `impôt avant décote : ${bilEur(d.base)}`;
  if(d.id==='cehr') return `revenu de ${bilEur(d.base)}`;
+ if(d.id==='plafqf') return `avantage des enfants limité à ${bilEur(d.base)}`;
  if(d.id==='recouvrement') return `impôt calculé : ${bilEur(d.base)}`;
  return `${bilEur(d.base)} × ${bilPct(d.taux)}`;
 }
+/* Modes de garde proposés, avec des heures et un coût horaire de départ (simples valeurs d'exemple, modifiables) */
+const BIL_MODES=[['aucune',"Pas de garde payante"],['am',"Assistante maternelle",120,4.5],['gad',"Garde à domicile",60,11],['creche',"Crèche",150,2]];
+const bilEnfantNeuf=()=>({age:5,etudiant:false,garde:{mode:'aucune',heures:0,cout:0}});
+/* La garde d'un enfant est saisie (et comptée) tant qu'elle peut ouvrir un droit : crédit d'impôt, ou CMG d'un parent isolé */
+const bilGardePossible=(age,isole)=>age!=null&&(age-1<bilP('ci_garde_age')||(isole&&age<bilP('cmg_age_isole')));
+/* Saisie transmise au moteur : les gardes dont les champs sont cachés sont ignorées */
+function bilSaisie(B){
+ const isole=B.foyer==='seul'&&!!B.isole;
+ return {...B,enfants:B.enfants.map(e=>bilGardePossible(bilAge(e.age),isole)?e:{...e,garde:{mode:'aucune'}})};
+}
+/* Bloc des enfants : reconstruit seulement quand on ajoute ou retire un enfant */
+function bilEnfantsHtml(B){
+ return B.enfants.map((e,i)=>`<div class="bilenf" data-i="${i}">
+   <div class="bilenf-t"><label for="bil-e${i}-age">Enfant ${i+1} : âge en ${BIL_P.annee}</label>
+    <input type="number" id="bil-e${i}-age" data-enf="age" min="0" max="25" step="1" inputmode="numeric" value="${esc(String(e.age))}">
+    <button type="button" class="bilenf-x" data-enfx="${i}" aria-label="Retirer l'enfant ${i+1}">Retirer</button></div>
+   <div class="bilenf-g" id="bil-e${i}-garde">
+    <label for="bil-e${i}-mode">Mode de garde</label>
+    <select id="bil-e${i}-mode" data-enf="mode">${BIL_MODES.map(([k,l])=>`<option value="${k}"${e.garde.mode===k?' selected':''}>${l}</option>`).join('')}</select>
+    <div class="bilenf-gd" id="bil-e${i}-gd">
+     <span><label for="bil-e${i}-h">Heures par mois</label><input type="number" id="bil-e${i}-h" data-enf="heures" min="0" step="5" inputmode="numeric" value="${esc(String(e.garde.heures))}"></span>
+     <span><label for="bil-e${i}-c">Coût par heure, indemnités comprises, en euros</label><input type="number" id="bil-e${i}-c" data-enf="cout" min="0" step="0.5" inputmode="decimal" value="${esc(String(e.garde.cout))}"></span>
+    </div>
+   </div>
+   <label class="bilchk" id="bil-e${i}-etu-l" for="bil-e${i}-etu"><input type="checkbox" id="bil-e${i}-etu" data-enf="etudiant"${e.etudiant?' checked':''}><span>Étudiant</span></label>
+  </div>`).join('');
+}
 function renderBilan(){
  document.documentElement.style.setProperty('--accent',cssv('--etat'));
- if(!state.bil) state.bil={foyer:'seul',adultes:[{age:35,situation:'prive_non_cadre',brut:30000},{age:35,situation:'sans_revenu',brut:0}],patronales:false,open:{}};
+ if(!state.bil) state.bil=bilSaisieNeuve();
  const B=state.bil, v=document.getElementById('view');
  /* render() est relancé par les chargements en arrière-plan : si le formulaire est déjà là, on ne le reconstruit pas (saisie et curseur conservés) */
  if(v.querySelector('#bil-form')){ bilUpdate(); return; }
  const adulte=n=>`<fieldset class="bilfs" id="bil-a${n}"><legend>${n?'Second adulte':'Premier adulte'}</legend>
    <label for="bil-a${n}-sit">Situation</label>
-   <select id="bil-a${n}-sit">${BIL_SIT.map(([k,l,ok])=>`<option value="${k}"${ok?'':' disabled'}${B.adultes[n].situation===k?' selected':''}>${l}</option>`).join('')}</select>
-   <label for="bil-a${n}-brut">Salaire brut annuel, en euros</label>
-   <input type="number" id="bil-a${n}-brut" min="0" step="500" inputmode="numeric" value="${B.adultes[n].brut}">
-   <label for="bil-a${n}-age">Âge (servira à estimer les services publics)</label>
-   <input type="number" id="bil-a${n}-age" min="16" max="110" step="1" inputmode="numeric" value="${B.adultes[n].age}">
+   <select id="bil-a${n}-sit">${BIL_SIT.map(([k,l])=>`<option value="${k}"${B.adultes[n].situation===k?' selected':''}>${l}</option>`).join('')}</select>
+   <label for="bil-a${n}-brut" id="bil-a${n}-brut-l">${BIL_MONTANT.prive}</label>
+   <input type="number" id="bil-a${n}-brut" min="0" step="500" inputmode="numeric" value="${esc(String(B.adultes[n].brut))}">
+   <div id="bil-a${n}-primes-b" hidden><label for="bil-a${n}-primes">Primes et indemnités annuelles, en euros</label>
+    <input type="number" id="bil-a${n}-primes" min="0" step="500" inputmode="numeric" value="${esc(String(B.adultes[n].primes))}"></div>
+   <div id="bil-a${n}-act-b" hidden><label for="bil-a${n}-act">Activité</label>
+    <select id="bil-a${n}-act">${BIL_ACTIVITES.map(([k,l])=>`<option value="${k}"${B.adultes[n].activite===k?' selected':''}>${l}</option>`).join('')}</select></div>
+   <div id="bil-a${n}-compl-b" hidden><label for="bil-a${n}-compl">Part de la retraite complémentaire dans la pension, en pour cent</label>
+    <input type="number" id="bil-a${n}-compl" min="0" max="100" step="5" inputmode="numeric" value="${esc(String(B.adultes[n].partCompl))}"></div>
+   <label for="bil-a${n}-age">Âge (à partir de 65 ans, il ouvre un abattement d'impôt sous condition de revenu)</label>
+   <input type="number" id="bil-a${n}-age" min="16" max="110" step="1" inputmode="numeric" value="${esc(String(B.adultes[n].age))}">
   </fieldset>`;
+ const depense=(k,l)=>`<label for="bil-f-${k}">${l}</label><input type="number" id="bil-f-${k}" data-fisc="${k}" min="0" step="100" inputmode="numeric" value="${esc(String(B.fisc[k]||''))}">`;
  v.innerHTML=`
  <div class="intro">
   <div><h2>Mon bilan : ce que je verse, ce que je reçois</h2>
    <p class="muted" style="margin-top:10px">Décrivez un foyer pour estimer, sur l'année ${BIL_P.annee}, ce qu'il verse aux administrations publiques et ce qu'il en reçoit. Tout est calculé dans votre navigateur : rien n'est envoyé ni enregistré.</p></div>
-  <div><div class="kpis" id="bil-kpis" style="margin-top:0"></div><p class="note" id="bil-taux" style="margin-top:10px"></p></div>
+  <div><div class="kpis" id="bil-kpis" style="margin-top:0"></div><p class="note" id="bil-decomp" style="margin-top:10px"></p><p class="note" id="bil-taux" style="margin-top:6px"></p><p class="note" id="bil-serv-solde" style="margin-top:6px" hidden></p><p class="note" id="bil-qf" style="margin-top:6px" hidden></p><p class="note" id="bil-csgr" style="margin-top:6px" hidden></p><p class="note" id="bil-alerte" role="status" style="margin-top:6px" hidden></p></div>
  </div>
- <div class="srcflag" style="margin-top:20px"><b>Première étape du simulateur.</b> Il traite pour l'instant un foyer d'un ou deux salariés du privé, sans enfant : cotisations, CSG, impôt sur le revenu. Les enfants et les prestations, les autres situations (fonctionnaire, micro-entrepreneur, retraité), la TVA et les services publics arrivent aux étapes suivantes.</div>
+ <div class="srcflag" style="margin-top:20px"><b>Simulateur complet, première version.</b> Il traite un foyer d'un ou deux adultes (salarié du privé, fonctionnaire, micro-entrepreneur, retraité), avec ou sans enfants : cotisations, CSG, impôt sur le revenu, TVA, taxe sur les carburants, taxe foncière ; prestations familiales, complément de mode de garde, prime d'activité, avantages fiscaux ; école, soins et crèche. Ne sont pas traités : le chômage, le RSA, les aides au logement, l'indépendant au régime réel, les revenus du patrimoine.</div>
+ <div class="bilprofils" role="group" aria-label="Foyers d'exemple"><span class="muted">Partir d'un exemple :</span>${BIL_PROFILS.map(([k,l])=>`<button type="button" class="chip" data-bilprofil="${k}">${l}</button>`).join('')}</div>
  <div class="bilgrid">
   <form id="bil-form" onsubmit="return false" aria-label="Description du foyer">
    <div class="bilfoyer" role="group" aria-label="Composition du foyer">${BIL_FOYER.map(([k,l])=>`<button type="button" class="chip" data-bilfoyer="${k}" aria-pressed="false">${l}</button>`).join('')}</div>
    ${adulte(0)}${adulte(1)}
-   <label class="bilchk" for="bil-pat"><input type="checkbox" id="bil-pat"${B.patronales?' checked':''}><span>Compter aussi les cotisations patronales dans ce que je verse</span></label>
-   <p class="note" id="bil-hyp" style="margin-top:14px">Hypothèses : temps plein toute l'année, situation stable, entreprise de 50 salariés et plus, taux moyen national d'accidents du travail. Ne sont pas comptés : la mutuelle et la prévoyance d'entreprise (le net d'un bulletin de paie réel est donc un peu plus bas) ni le versement mobilité payé par l'employeur. L'impôt applique le barème des revenus 2025, celui des revenus ${BIL_P.annee} n'étant pas encore voté. Le salaire brut annuel est le brut mensuel multiplié par douze, primes comprises.</p>
+   <fieldset class="bilfs" id="bil-enfants-fs"><legend>Enfants à charge</legend>
+    <div id="bil-enfants">${bilEnfantsHtml(B)}</div>
+    <button type="button" class="chip" id="bil-enf-add">Ajouter un enfant</button>
+    <label class="bilchk" id="bil-isole-l" for="bil-isole"><input type="checkbox" id="bil-isole"${B.isole?' checked':''}><span>Parent isolé : j'élève seul mes enfants</span></label>
+   </fieldset>
+   <fieldset class="bilfs" id="bil-fisc"><legend>Dépenses de l'année ouvrant droit à un avantage fiscal</legend>
+    ${depense('domicile',"Emploi à domicile (ménage, soutien scolaire…), en euros")}
+    ${depense('dons75',"Dons aux associations d'aide aux personnes en difficulté")}
+    ${depense('dons66',"Autres dons aux associations")}
+    ${depense('per',"Versements sur un plan d'épargne retraite")}
+   </fieldset>
+   <fieldset class="bilfs" id="bil-conso"><legend>Logement et consommation</legend>
+    <label for="bil-c-tf">Taxe foncière de l'année, en euros (si le foyer est propriétaire)</label>
+    <input type="number" id="bil-c-tf" data-conso="tf" min="0" step="50" inputmode="numeric" value="${esc(String(B.conso.tf))}">
+    <label for="bil-c-epargne">Part du revenu disponible mise de côté, en pour cent</label>
+    <input type="number" id="bil-c-epargne" data-conso="epargne" min="0" max="100" step="1" inputmode="decimal" value="${esc(String(B.conso.epargne))}" aria-describedby="bil-c-epargne-n">
+    <p class="note" id="bil-c-epargne-n" style="margin-top:4px"></p>
+    <label for="bil-c-litres">Carburant acheté dans l'année, en litres</label>
+    <input type="number" id="bil-c-litres" data-conso="litres" min="0" step="50" inputmode="numeric" value="${esc(String(B.conso.litres))}">
+    <label for="bil-c-carb">Carburant</label>
+    <select id="bil-c-carb" data-conso="carburant">${BIL_CARBURANTS.map(([k,l])=>`<option value="${k}"${B.conso.carburant===k?' selected':''}>${l}</option>`).join('')}</select>
+   </fieldset>
+   <label class="bilchk" for="bil-log"><input type="checkbox" id="bil-log"${B.logement?' checked':''}><span>Le foyer touche une aide au logement, est propriétaire sans emprunt ou est logé gratuitement (cela réduit la prime d'activité)</span></label>
+   <label class="bilchk" id="bil-pat-l" for="bil-pat"><input type="checkbox" id="bil-pat"${B.patronales?' checked':''}><span>Compter aussi les cotisations patronales dans ce que je verse</span></label>
+   <p class="note" id="bil-hyp" style="margin-top:14px">Hypothèses : temps plein toute l'année, situation stable. Salarié du privé : entreprise de 50 salariés et plus, taux moyen national d'accidents du travail. Ne sont pas comptés : la mutuelle et la prévoyance d'entreprise (le net d'un bulletin de paie réel est donc un peu plus bas) ni le versement mobilité payé par l'employeur. L'impôt applique le barème des revenus 2025, celui des revenus ${BIL_P.annee} n'étant pas encore voté. Le salaire brut annuel est le brut mensuel multiplié par douze, primes comprises.<br><br>Fonctionnaire titulaire : la retraite additionnelle porte sur les primes dans la limite de 20 % du traitement. Ne sont pas comptés : l'indemnité de résidence, le supplément familial de traitement, la nouvelle bonification indiciaire, la participation de l'employeur à la mutuelle, ni les contributions propres aux collectivités et aux hôpitaux (centre de gestion, formation, emploi hospitalier). Micro-entrepreneur : cotisations au taux de droit commun, sans l'aide à la création d'entreprise (Acre) ni le versement libératoire de l'impôt ; chiffre d'affaires supposé sous les plafonds du régime ; activité libérale rattachée au régime général ; ni la TVA qu'il facture, ni la cotisation foncière des entreprises ne sont comptées. Ses dépenses professionnelles sont comptées au forfait fiscal : le revenu disponible part du bénéfice forfaitaire (le chiffre d'affaires moins un abattement de ${bilPct(bilP('mi_abat_vente'))} pour la vente, ${bilPct(bilP('mi_abat_services'))} pour les services, ${bilPct(bilP('mi_abat_liberal'))} pour une activité libérale), comme l'impôt et la prime d'activité ; ses dépenses réelles peuvent être plus hautes ou plus basses. Retraité : la pension saisie réunit la retraite de base et la retraite complémentaire, majorations comprises ; son taux de CSG dépend du revenu fiscal de référence de 2024, estimé ici d'après les revenus saisis ; la cotisation maladie de 1 % ne porte que sur la retraite complémentaire ; en choisissant cette situation, l'âge est proposé à ${BIL_AGE_RETRAITE_DEPART} ans s'il était inférieur à ${BIL_AGE_RETRAITE_MIN} ans. Les exemples sont des montants ronds, sauf le SMIC de ${BIL_P.annee} et le salaire médian du secteur privé (${bilEur(bilP('profil_median'))} bruts par an).<br><br>Consommation : la TVA est une estimation. Elle applique la part moyenne de la TVA dans la consommation des ménages (${bilPct(bilP('tva_conso'))}, calculée par l'outil à partir de données de l'Insee de 2016) à ce que le foyer consomme : son revenu disponible, moins la taxe foncière, moins ce qu'il met de côté. Sans taux d'épargne saisi, c'est le taux moyen estimé au niveau de vie du foyer (revenu disponible par unité de consommation) : l'outil relie les taux moyens des cinq cinquièmes de niveau de vie (Insee, données de 2017 ; niveaux de vie de 2024). La taxe sur les carburants est l'accise de ${BIL_P.annee}, hors TVA (${fmt(bilP('acc_gazole'),4)} € par litre de gazole, ${fmt(bilP('acc_e10'),4)} € par litre de SP95-E10). Ne sont pas comptées : les taxes sur le tabac, l'alcool, l'électricité, le gaz et les assurances, la taxe d'habitation sur les résidences secondaires.<br><br>Services publics : estimations à partir de moyennes nationales, comptées à part du solde. École : dépense moyenne par élève du niveau déduit de l'âge, pour la part financée par les administrations publiques (ministère de l'Éducation nationale, ${BIL_P.p.eco_mat.d.slice(0,4)} ; part calculée par l'outil) ; l'année de ses ${bilP('eco_age_min')} ans, l'enfant est compté ${bilP('eco_mois_entree')} mois sur 12 à l'école et, s'il est en crèche, ${12-bilP('eco_mois_entree')} mois en crèche. Soins : moyenne des ménages dont la personne de référence a l'âge du plus âgé des adultes, par unité de consommation (Insee, données de ${BIL_P.p.sante_uc.d.slice(0,4)}, non revalorisées). Crèche : prix de revient moyen d'une heure d'accueil (${fmt(bilP('creche_revient'),2)} €, Caf, ${BIL_P.p.creche_revient.d.slice(0,4)}) moins ce que paie la famille, pour les heures saisies. Les autres dépenses publiques (défense, police, justice, routes, intérêts de la dette) ne sont pas réparties entre les foyers.<br><br>Prestations : barèmes de fin ${BIL_P.annee} appliqués sur douze mois ; la Caf regarde les ressources de ${BIL_P.annee-2}, supposées ici égales à celles saisies. L'âge d'un enfant est celui qu'il atteint en ${BIL_P.annee}. Le complément de mode de garde suppose qu'au moins un parent travaille. En union libre, chaque adulte fait sa déclaration : les enfants et les avantages fiscaux sont rattachés à celui des deux pour lequel l'impôt total est le plus bas (en comptant, pour un retraité, les prélèvements sur sa pension, dont le taux dépend de ses parts). Ne sont pas comptés : l'allocation de soutien familial, la prestation partagée d'éducation, la prime de naissance, l'allocation forfaitaire versée l'année des 20 ans d'un enfant, la garde alternée, les naissances multiples, le handicap d'un enfant, les aides au logement, ni les cotisations que le complément de mode de garde prend en charge à la place du foyer.</p>
   </form>
   <div id="bil-res">
-   <section><h3>Du coût employeur au revenu disponible</h3>
-    <p class="note" style="margin-top:6px">Chaque barre sombre est un niveau ; chaque barre bleue, ce qui est prélevé entre deux niveaux.</p>
+   <section><h3 id="bil-cas-t">Du coût employeur au revenu disponible</h3>
+    <p class="note" style="margin-top:6px">Les barres pleines marquent les niveaux ; en bleu, ce qui est prélevé entre deux niveaux ; en vert, ce qui est reçu.</p>
     <div id="bil-cascade" style="margin-top:10px"></div></section>
    <div class="bilcols">
     <section><h3>Ce que je verse</h3><p class="note" style="margin-top:6px">Cliquez sur une ligne pour voir le calcul.</p><div class="mlist" id="bil-verse" style="margin-top:8px"></div></section>
-    <section><h3>Ce que je reçois</h3><div class="mlist" id="bil-recu" style="margin-top:8px"></div></section>
+    <section><h3>Ce que je reçois</h3><p class="note" style="margin-top:6px">En argent, prestations nettes de CRDS. Une pension de retraite y figure pour son montant brut : ses prélèvements sont dans ce que je verse.</p><div class="mlist" id="bil-recu" style="margin-top:8px"></div>
+     <h3 style="margin-top:28px">Ce que je reçois en services publics</h3><p class="note" style="margin-top:6px">Estimations à partir de moyennes nationales, comptées à part : elles n'entrent pas dans le solde en argent.</p><div class="mlist" id="bil-services" style="margin-top:8px"></div></section>
    </div>
+   <section id="bil-ouva" style="margin-top:34px"><h3>Où va ce que je verse</h3>
+    <p class="note" id="bil-ouva-n" style="margin-top:6px"></p>
+    <div id="bil-ouva-bars" style="margin-top:10px"></div></section>
   </div>
  </div>
  <div class="srcflag" id="bil-avert" style="margin-top:30px"><b>Un outil pour comprendre, pas pour déclarer.</b> Ces montants sont des estimations pédagogiques : ils ne valent ni simulation officielle ni conseil. Pour une démarche réelle, utilisez les simulateurs des administrations :
@@ -2859,54 +3304,407 @@ function renderBilan(){
   <a href="https://www.urssaf.fr/accueil/outils-documentation/outils/estimateur-de-cotisations.html" target="_blank" rel="noopener">Urssaf</a>,
   <a href="https://www.mesdroitssociaux.gouv.fr" target="_blank" rel="noopener">mes droits sociaux</a>.</div>`;
  v.querySelectorAll('[data-bilfoyer]').forEach(b=>b.onclick=()=>{ B.foyer=b.dataset.bilfoyer; bilUpdate(); });
+ /* un exemple remplace toute la saisie : le formulaire est reconstruit, le focus revient sur le bouton choisi */
+ v.querySelectorAll('[data-bilprofil]').forEach(b=>b.onclick=()=>{ const k=b.dataset.bilprofil, p=BIL_PROFILS.find(x=>x[0]===k); if(!p) return;
+  state.bil=bilSaisieNeuve(p[2]()); v.innerHTML=''; renderBilan(); const bouton=document.querySelector(`[data-bilprofil="${k}"]`); if(bouton) bouton.focus(); });
  [0,1].forEach(n=>{
-  v.querySelector(`#bil-a${n}-sit`).onchange=e=>{ B.adultes[n].situation=e.target.value; bilUpdate(); };
-  v.querySelector(`#bil-a${n}-brut`).oninput=e=>{ B.adultes[n].brut=e.target.value; bilUpdate(); };
-  v.querySelector(`#bil-a${n}-age`).oninput=e=>{ B.adultes[n].age=e.target.value; };
+  v.querySelector(`#bil-a${n}-sit`).onchange=e=>{ const a=B.adultes[n], avant=a.situation; a.situation=e.target.value;
+   /* fonctionnaire : des primes sont proposées tant qu'aucune n'a été saisie à la main ; retraité : un âge est proposé si celui saisi est trop bas */
+   const primes=()=>{ if(bilFonct(a.situation)&&a.primesAuto!==false){ a.primes=bilPrimesDepart(a.brut); v.querySelector(`#bil-a${n}-primes`).value=a.primes; } };
+   primes();
+   if(a.situation==='retraite'&&avant!=='retraite'&&!(parseFloat(a.age)>=BIL_AGE_RETRAITE_MIN)){ a.age=BIL_AGE_RETRAITE_DEPART; v.querySelector(`#bil-a${n}-age`).value=a.age; }
+   bilUpdate(); };
+  v.querySelector(`#bil-a${n}-brut`).oninput=e=>{ const a=B.adultes[n]; a.brut=e.target.value;
+   if(bilFonct(a.situation)&&a.primesAuto!==false){ a.primes=bilPrimesDepart(a.brut); v.querySelector(`#bil-a${n}-primes`).value=a.primes; }
+   bilUpdate(); };
+  v.querySelector(`#bil-a${n}-primes`).oninput=e=>{ B.adultes[n].primes=e.target.value; B.adultes[n].primesAuto=false; bilUpdate(); };
+  v.querySelector(`#bil-a${n}-act`).onchange=e=>{ B.adultes[n].activite=e.target.value; bilUpdate(); };
+  v.querySelector(`#bil-a${n}-compl`).oninput=e=>{ B.adultes[n].partCompl=e.target.value; bilUpdate(); };
+  v.querySelector(`#bil-a${n}-age`).oninput=e=>{ B.adultes[n].age=e.target.value; bilUpdate(); };
  });
  v.querySelector('#bil-pat').onchange=e=>{ B.patronales=e.target.checked; bilUpdate(); };
+ v.querySelector('#bil-log').onchange=e=>{ B.logement=e.target.checked; bilUpdate(); };
+ v.querySelector('#bil-isole').onchange=e=>{ B.isole=e.target.checked; bilUpdate(); };
+ v.querySelector('#bil-fisc').oninput=e=>{ const k=e.target.dataset.fisc; if(k){ B.fisc[k]=e.target.value; bilUpdate(); } };
+ const saisieConso=e=>{ const k=e.target.dataset.conso; if(k){ B.conso[k]=e.target.value; bilUpdate(); } };
+ /* « change » seulement pour la liste : sur un champ numérique il part à la perte du focus et redessinerait les résultats au milieu d'un clic */
+ v.querySelector('#bil-conso').oninput=saisieConso; v.querySelector('#bil-c-carb').onchange=saisieConso;
+ /* enfants : un seul écouteur sur le bloc ; ajouter ou retirer un enfant ne reconstruit que ce bloc */
+ const bloc=v.querySelector('#bil-enfants'), redessine=()=>{ bloc.innerHTML=bilEnfantsHtml(B); bilUpdate(); };
+ v.querySelector('#bil-enf-add').onclick=()=>{ if(B.enfants.length>=BIL_MAX_ENFANTS) return; B.enfants.push(bilEnfantNeuf()); redessine();
+  const champ=document.getElementById(`bil-e${B.enfants.length-1}-age`); if(champ){ champ.focus(); champ.select(); } };
+ bloc.onclick=e=>{ const x=e.target.closest('[data-enfx]'); if(!x) return; B.enfants.splice(+x.dataset.enfx,1); redessine(); document.getElementById('bil-enf-add').focus(); };
+ const saisieEnfant=e=>{ const k=e.target.dataset.enf, ligne=e.target.closest('.bilenf'); if(!k||!ligne) return; const enf=B.enfants[+ligne.dataset.i]; if(!enf) return;
+  if(k==='age') enf.age=e.target.value; else if(k==='etudiant') enf.etudiant=e.target.checked;
+  else if(k==='mode'){ const m=BIL_MODES.find(x=>x[0]===e.target.value)||BIL_MODES[0]; enf.garde={mode:m[0],heures:m[2]||0,cout:m[3]||0};
+   ligne.querySelector('[data-enf="heures"]').value=enf.garde.heures; ligne.querySelector('[data-enf="cout"]').value=enf.garde.cout; }
+  else enf.garde[k]=e.target.value;
+  bilUpdate(); };
+ bloc.oninput=saisieEnfant; bloc.onchange=e=>{ if(e.target.dataset.enf==='etudiant'||e.target.dataset.enf==='mode') saisieEnfant(e); };
  const plier=e=>{ const r=e.target.closest('.billine'); if(!r) return; B.open[r.dataset.id]=!B.open[r.dataset.id]; bilUpdate(); };
- v.querySelector('#bil-verse').onclick=plier; v.querySelector('#bil-recu').onclick=plier;
+ v.querySelector('#bil-verse').onclick=plier; v.querySelector('#bil-recu').onclick=plier; v.querySelector('#bil-services').onclick=plier;
  bilUpdate();
 }
 /* Recalcule et redessine les résultats, sans toucher au formulaire (le champ en cours de saisie garde le curseur) */
 function bilUpdate(){
  const B=state.bil, $=id=>document.getElementById(id); if(!B||!$('bil-kpis')) return;
- const R=bilCalcule(B), T=R.tot;
+ const R=bilCalcule(bilSaisie(B)), T=R.tot, isole=B.foyer==='seul'&&!!B.isole;
  document.querySelectorAll('[data-bilfoyer]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.bilfoyer===B.foyer));
  $('bil-a1').hidden=B.foyer==='seul';
- [0,1].forEach(n=>{ $(`bil-a${n}-brut`).disabled=B.adultes[n].situation==='sans_revenu'; });
+ const sansEmployeur=R.info.sansEmployeur, avecPat=B.patronales&&!sansEmployeur;
+ /* champs de chaque adulte : libellé et champs propres à la situation, montrés ou cachés sans rien reconstruire */
+ [0,1].forEach(n=>{ const s=B.adultes[n].situation;
+  $(`bil-a${n}-brut`).disabled=s==='sans_revenu';
+  $(`bil-a${n}-brut-l`).textContent=bilFonct(s)?BIL_MONTANT.fonct:BIL_MONTANT[s]||BIL_MONTANT.prive;
+  $(`bil-a${n}-primes-b`).hidden=!bilFonct(s); $(`bil-a${n}-act-b`).hidden=s!=='micro'; $(`bil-a${n}-compl-b`).hidden=s!=='retraite'; });
+ $('bil-pat-l').hidden=sansEmployeur;
+ $('bil-cas-t').textContent=sansEmployeur?"Du revenu brut au revenu disponible":"Du coût employeur au revenu disponible";
+ /* champs des enfants : montrés ou cachés selon l'âge, sans rien reconstruire */
+ B.enfants.forEach((e,i)=>{ const a=bilAge(e.age); if(!$(`bil-e${i}-garde`)) return;
+  $(`bil-e${i}-garde`).hidden=!bilGardePossible(a,isole); $(`bil-e${i}-gd`).hidden=e.garde.mode==='aucune'; $(`bil-e${i}-etu-l`).hidden=!(a!=null&&a>=bilP('ars_age_max')); });
+ $('bil-enf-add').disabled=B.enfants.length>=BIL_MAX_ENFANTS;
+ $('bil-isole-l').hidden=!(B.foyer==='seul'&&B.enfants.length>0);
  const kpi=(val,lib,col)=>`<div class="kpi"><div class="v">${val}</div><div class="l"><i class="sw" style="background:var(${col})"></i>${lib}</div></div>`;
  $('bil-kpis').innerHTML=kpi(bilEur(T.verse),"Ce que je verse",'--etat')+kpi(bilEur(T.recu),"Ce que je reçois en argent",'--coll')+kpi(bilEur(T.solde),"Solde",'--muted');
- $('bil-taux').innerHTML=`Taux de prélèvement global : <b>${fmt(T.taux*100,1)} %</b> ${B.patronales?"du coût total pour l'employeur":"du revenu brut du foyer"} (${bilEur(B.patronales?T.coutEmployeur:T.brut)}).`;
- const max=Math.max(T.coutEmployeur,1); let niveau=0;
- $('bil-cascade').innerHTML=R.cascade.map(m=>{ let g,w=m.montant/max*100;
-  if(m.type==='niveau'){ g=0; niveau=m.montant; } else g=(niveau-m.montant)/max*100;
-  return `<div class="casrow ${m.type}" data-k="${m.k}"><span class="casl">${esc(m.l)}</span><span class="cast"><i style="left:${Math.max(0,g).toFixed(2)}%;width:${Math.max(0,w).toFixed(2)}%"></i></span><b>${m.type==='moins'?'− ':''}${bilEur(m.montant)}</b></div>`; }).join('');
+ /* décomposition du versé : ce qui est prélevé sur les revenus (barèmes), et les taxes sur la consommation et le logement (estimation ou saisie) */
+ const mt=id=>(R.verse.find(l=>l.id===id)||{montant:0}).montant, nomsTaxes=[mt('tva')>0&&"TVA estimée",mt('carbu')>0&&"taxe sur les carburants",mt('tf')>0&&"taxe foncière"].filter(Boolean).join(', ');
+ $('bil-decomp').innerHTML=`Ce que je verse : <b id="bil-directs">${bilEur(T.directs)}</b> prélevés sur les revenus${T.conso>0?` et <b id="bil-taxes">${bilEur(T.conso)}</b> de taxes sur la consommation et le logement (${nomsTaxes})`:''}.`;
+ /* taux global : il mêle des prélèvements calculés au barème et des taxes estimées, les deux parts sont dites ; sans revenu, il n'a pas de sens */
+ const denom=avecPat?T.coutEmployeur:T.brut, pc=x=>fmt(x/denom*100,1);
+ $('bil-taux').innerHTML=denom>0?`Taux de prélèvement global : <b>${fmt(T.taux*100,1)} %</b> ${avecPat?(R.info.tousSalaires?"du coût total pour l'employeur":"du coût pour l'employeur et des autres revenus bruts"):"du revenu brut du foyer"} (${bilEur(denom)})${T.conso>0?`, dont ${pc(T.directs)} % prélevés sur les revenus et ${pc(T.conso)} % de taxes sur la consommation et le logement (${nomsTaxes})`:''}.`
+  :`Taux de prélèvement global : sans objet, aucun revenu n'est saisi.`;
+ /* effet du quotient familial : affiché pour information, il est déjà compris dans l'impôt */
+ $('bil-qf').hidden=!(R.info.effetQf>0);
+ $('bil-qf').innerHTML=`Effet du quotient familial : <b>${bilEur(R.info.effetQf)}</b> d'impôt en moins grâce aux enfants${R.info.plafonne?", avantage plafonné":""}. Pour information : ce montant est déjà compris dans l'impôt affiché, il n'est pas ajouté à ce que je reçois.`;
+ /* taux de CSG de chaque retraité, avec le revenu fiscal de référence et les seuils qui le fixent */
+ const retr=R.adultes.map((a,n)=>({a,n})).filter(x=>x.a.nature==='pension'&&x.a.cot.brut>0&&R.info.rfrRetraite[x.n]);
+ const nomCsg={nul:"exonérée de CSG",reduit:`soumise à la CSG au taux réduit (${bilPct(bilP('re_csg_reduit'))})`,median:`soumise à la CSG au taux médian (${bilPct(bilP('re_csg_median_ded')+bilP('re_csg_nonded'))})`,
+  plein:`soumise à la CSG au taux normal (${bilPct(bilP('re_csg_plein_ded')+bilP('re_csg_nonded'))})`};
+ $('bil-csgr').hidden=!retr.length;
+ /* deux retraités d'une même déclaration au même taux : une seule phrase */
+ const memeDecl=retr.length===2&&B.foyer!=='union_libre'&&retr[0].a.cot.taux===retr[1].a.cot.taux;
+ $('bil-csgr').innerHTML=(memeDecl?retr.slice(0,1):retr).map(({a,n})=>{ const ref=R.info.rfrRetraite[n], parts=Math.max(1,ref.parts), seuil=i=>bilEur(bilP('re_seuil_'+i)+(parts-1)*2*bilP('re_seuil_'+i+'_demi')), t=a.cot.taux;
+  const rang=BIL_TAUX_RET.indexOf(t)+1, nbParts=`pour ${String(parts).replace('.',',')} part${parts>=2?'s':''}`;
+  const place=ref.limite?`est à la limite du seuil de ${seuil(Math.min(3,rang))} ${nbParts} : aucun des deux taux voisins ne se confirme d'une année sur l'autre, le plus bas est retenu`
+   :(t==='nul'?`ne dépasse pas ${seuil(1)}`:t==='reduit'?`est compris entre ${seuil(1)} et ${seuil(2)}`:t==='median'?`est compris entre ${seuil(2)} et ${seuil(3)}`:`dépasse ${seuil(3)}`)+' '+nbParts;
+  const qui=memeDecl?'Pensions':R.adultes.length>1?`Adulte ${n+1} : pension`:'Pension', nom=memeDecl?nomCsg[t].replace(/^(exonérée|soumise)/,'$1s'):nomCsg[t];
+  return `${qui} <b>${nom}</b> : le revenu fiscal de référence estimé, ${bilEur(ref.rfr)}, ${place}.`; }).join('<br>')
+  +(retr.length?` Le taux réel dépend du revenu fiscal de référence de ${BIL_P.annee-2}, supposé ici égal à celui que donnent les revenus saisis.`:'');
+ /* chiffre d'affaires au-dessus du plafond du régime du micro-entrepreneur : le calcul ne vaut plus */
+ const hors=R.info.microHorsPlafond;
+ $('bil-alerte').hidden=!hors.length;
+ $('bil-alerte').innerHTML=hors.map(h=>`<b>${R.adultes.length>1?`Adulte ${h.n+1} : chiffre`:'Chiffre'} d'affaires au-dessus du plafond du régime du micro-entrepreneur (${bilEur(h.plafond)} pour cette activité).</b> Au-delà de ce plafond deux années de suite, le régime ne s'applique plus : les montants affichés ne valent alors plus.`).join('<br>');
+ /* une marche « plus » nulle n'est pas affichée ; une marche « moins » se place sous le niveau précédent, une marche « plus » à sa suite */
+ const max=Math.max(...R.cascade.map(m=>m.montant),1); let niveau=0;
+ $('bil-cascade').innerHTML=R.cascade.filter(m=>m.type!=='plus'||m.montant>0).map(m=>{ let g,w=m.montant/max*100;
+  if(m.type==='niveau'){ g=0; niveau=m.montant; } else if(m.type==='plus'){ g=niveau/max*100; niveau+=m.montant; } else { g=(niveau-m.montant)/max*100; niveau-=m.montant; }
+  return `<div class="casrow ${m.type}" data-k="${m.k}"><span class="casl">${esc(m.l)}</span><span class="cast"><i style="left:${Math.max(0,g).toFixed(2)}%;width:${Math.max(0,Math.min(w,100-Math.max(0,g))).toFixed(2)}%"></i></span><b>${m.type==='moins'?'− ':m.type==='plus'?'+ ':''}${bilEur(m.montant)}</b></div>`; }).join('');
  const ligne=l=>{ const o=!!B.open[l.id], P=BIL_PREC[l.precision];
   return `<button type="button" class="mrow billine" data-id="${l.id}" aria-expanded="${o}"><span class="mt"><span class="dcar">${o?'−':'+'}</span>${esc(l.l)} <span class="prec p-${l.precision}" title="${esc(P[1])}">${P[0]}</span></span><span class="cgap">${bilEur(l.montant)}</span></button>`
-   +(o?l.detail.map(d=>`<div class="bildet"><span>${esc(d.l)}</span><span class="muted">${bilDetTxt(d)}</span><b>${d.montant==null?'':bilEur(d.montant)}</b></div>`).join(''):''); };
+   +(o?l.detail.map(d=>`<div class="bildet"><span>${esc(d.l)}</span><span class="muted">${esc(bilDetTxt(d))}</span><b>${d.montant==null?'':bilEur(d.montant)}</b></div>`).join(''):''); };
  $('bil-verse').innerHTML=R.verse.map(ligne).join('');
- $('bil-recu').innerHTML=R.recu.length?R.recu.map(ligne).join(''):`<p class="muted" style="padding:12px 6px;border-top:1px solid var(--rule)">Prestations familiales, prime d'activité et avantages fiscaux : à venir à l'étape 2.</p>`;
+ /* consommation : la note dit le taux d'épargne appliqué et la tranche de niveau de vie du foyer */
+ const K=R.info.conso, saisi=bilNbre(B.conso.epargne)!=null;
+ $('bil-c-epargne-n').textContent=`${saisi?`Taux saisi. Le taux moyen estimé à ce niveau de vie est de ${bilPct(K.epargneDefaut,1)}`:`Laissé vide : ${bilPct(K.epargneDefaut,1)}, taux moyen estimé à ce niveau de vie`} (${bilEur(K.niveauVie)} par unité de consommation, ${BIL_CINQUIEMES[K.tranche-1]} cinquième).`;
+ /* services publics : à part du solde en argent */
+ $('bil-services').innerHTML=R.services.length?R.services.map(ligne).join(''):`<p class="muted" style="padding:12px 6px;border-top:1px solid var(--rule)">Aucun service public estimé pour ce foyer, d'après ce qui est saisi (l'âge d'un adulte est nécessaire pour les soins).</p>`;
+ $('bil-serv-solde').hidden=!(T.services>0);
+ $('bil-serv-solde').innerHTML=`Services publics reçus (école, soins, crèche), estimés à part : <b>${bilEur(T.services)}</b>. En les comptant, le solde serait de <b>${bilEur(T.soldeServices)}</b>.`;
+ /* où va ce que je verse : barres par usage, clé moyenne nationale */
+ $('bil-ouva').hidden=!(T.verse>0);
+ $('bil-ouva-n').textContent=`Vos ${bilEur(T.verse)} versés, répartis comme l'ensemble des dépenses publiques de ${R.ouva.annee} (onglet « Où va l'argent »). C'est une clé moyenne nationale, pas un fléchage : aucun prélèvement n'est affecté à ces usages dans ces proportions, et les cotisations de retraite et de chômage ouvrent des droits personnels.`;
+ const partMax=Math.max(...R.ouva.lignes.map(l=>l.part),1e-9);
+ $('bil-ouva-bars').innerHTML=R.ouva.lignes.map(l=>`<div class="casrow ou" data-id="${l.id}"><span class="casl">${esc(l.l)} <small class="muted">${bilPct(l.part,1)}</small></span><span class="cast"><i style="left:0;width:${(l.part/partMax*100).toFixed(2)}%"></i></span><b>${bilEur(l.montant)}</b></div>`).join('');
+ $('bil-recu').innerHTML=R.recu.length?R.recu.map(ligne).join(''):`<p class="muted" style="padding:12px 6px;border-top:1px solid var(--rule)">Aucune prestation ni avantage fiscal pour ce foyer, d'après ce qui est saisi.</p>`;
 }
 /* Registre des barèmes, affiché dans l'onglet Sources */
 function bilVal(p){
  const v=p.v;
- if(p.t==='eur') return bilEur(v);
+ if(p.t==='eur') return Number.isInteger(v)?bilEur(v):fmt(v,2)+'\u00a0€';
  if(p.t==='eurh') return fmt(v,2)+" € de l'heure";
+ if(p.t==='eurl') return fmt(v,4)+" € par litre";
+ if(p.t==='ages') return v.map(([a,x])=>`à partir de ${a} ans : ${bilEur(x)}`).join(' ; ');
  if(p.t==='h') return fmt(v,2)+' h';
  if(p.t==='nb') return String(v).replace('.',',');
  if(p.t==='bareme') return v.map(([s,t])=>`au-delà de ${bilEur(s)} : ${bilPct(t)}`).join(' ; ');
+ if(p.t==='liste') return v.map(t=>bilPct(t,4)).join(' ; ');
  return bilPct(v);
 }
 function bilBaremeHtml(){
  const jour=x=>x.split('-').reverse().join('/');
  return `<section style="margin-top:40px" id="src-baremes-bil"><h2>Barèmes ${BIL_P.annee} du simulateur personnel</h2>
-  <p class="muted" style="margin-top:8px;max-width:86ch">Tous les taux et plafonds utilisés par l'onglet « Mon bilan », relevés le ${jour(BIL_P.genere)} dans ${esc(BIL_P.modele)} (qui cite les textes) et, quand ce modèle n'est pas à jour, dans les sources officielles indiquées.</p>
-  <div class="tbl" style="margin-top:12px"><table id="src-bareme"><thead><tr><th>Paramètre</th><th>Valeur</th><th>En vigueur depuis le</th><th style="text-align:left">Source</th></tr></thead>
+  <p class="muted" style="margin-top:8px;max-width:86ch">Tous les taux et plafonds utilisés par l'onglet « Mon bilan », relevés le ${jour(BIL_P.genere)} dans ${esc(BIL_P.modele)} (qui cite les textes) et, quand ce modèle n'est pas à jour, dans les sources officielles indiquées. Les moyennes de la consommation et des services publics (niveau de vie, épargne, TVA, école, soins, crèche) viennent des publications citées, à la date de leurs données.</p>
+  <div class="tbl" style="margin-top:12px"><table id="src-bareme"><thead><tr><th>Paramètre</th><th>Valeur</th><th>En vigueur depuis le, ou date des données</th><th style="text-align:left">Source</th></tr></thead>
   <tbody>${Object.values(BIL_P.p).map(p=>`<tr><th>${esc(p.l)}</th><td>${bilVal(p)}</td><td>${jour(p.d)}</td><td style="text-align:left">${p.u?`<a href="${esc(p.u)}" target="_blank" rel="noopener">${esc(p.s)}</a>`:esc(p.s)}</td></tr>`).join('')}</tbody></table></div></section>`;
 }
 
+/* ---------- Mon bilan, étape 2 : la famille (prestations familiales, mode de garde, prime d'activité) ---------- */
+/* Fonctions pures. Tous les taux, plafonds et âges viennent de BIL_P. Les prestations sont calculées par mois,
+   aux barèmes en vigueur fin 2026, puis comptées sur douze mois, nettes de CRDS. */
+const bilMois=x=>fmt(x,2)+' € par mois';
+/* Enfants à charge au sens des prestations familiales : âge connu, inférieur à la limite */
+const bilEnfantsPf=(enfants,limite)=>(enfants||[]).map(e=>bilAge(e&&e.age)).filter(a=>a!=null&&a<(limite||bilP('pf_age_max')));
+/* Plafond de ressources d'une prestation : base majorée par enfant, puis pour deux revenus ou un parent seul */
+const bilPlafPf=(base,maj,n,majore)=>base*(1+bilP('pf_plaf_enf12')*Math.min(n,2)+bilP('pf_plaf_enf3')*Math.max(n-2,0))+(majore?maj:0);
+/* Prestations familiales d'un foyer : allocations familiales, allocation de base, complément familial, rentrée scolaire.
+   foyer = { enfants:[{age}], couple, biactif } ; ressources : revenus annuels après abattement de 10 %. */
+function bilFamille(foyer,ressources){
+ const F=foyer||{}, R=bilNum(ressources), B=bilP('bmaf'), crds=bilP('crds'), annee=BIL_P.annee;
+ const ages=bilEnfantsPf(F.enfants), n=ages.length, majore=!F.couple||!!F.biactif;
+ const lignes=[], mensuel={af:0,afMaj:0,ab:0,cf:0,cfBase:0,ars:0};
+ const ligne=(id,l,mois,detail)=>{ const brut=bilR(mois*12), net=bilR(brut*(1-crds));
+  lignes.push({id,l,montant:net,precision:'exact',src:'bil',detail:[...detail,{id:'crds',l:"CRDS de "+bilPct(crds),txt:"retenue sur la prestation",montant:bilR(net-brut)}]}); };
+
+ /* allocations familiales */
+ if(n>=2){
+  const base=B*(bilP('af_taux_2')+bilP('af_taux_sup')*(n-2));
+  /* majoration pour âge : enfants nés avant l'année de bascule (ils avaient 14 ans avant le 1er mars 2026) ou âgés de 18 ans et plus */
+  let eligibles=ages.filter(a=>a>=bilP('af_maj_age_2026')||(a>=bilP('af_maj_age')&&annee-a<bilP('af_maj_annee')));
+  if(n===2&&eligibles.length&&eligibles.includes(Math.max(...ages))) eligibles=eligibles.slice().sort((x,y)=>x-y).slice(0,eligibles.length-1);
+  const maj=B*bilP('af_maj_taux')*eligibles.length, sup=bilP('af_plaf_enf')*(n-2), p1=bilP('af_plaf_1')+sup, p2=bilP('af_plaf_2')+sup;
+  const taux=R<=p1?1:R<=p2?bilP('af_mod_2'):bilP('af_mod_3');
+  /* complément dégressif : juste au-dessus d'un plafond, on verse l'écart restant, étalé sur douze mois */
+  const haut=taux===1?1:taux===bilP('af_mod_2')?1:bilP('af_mod_2'), plaf=R<=p2?p1:p2, ecart=(base+maj)*(haut-taux);
+  const degressif=taux<1?Math.max(0,(plaf+12*ecart-R)/12):0;
+  mensuel.afMaj=bilR(maj*taux); mensuel.af=bilR(base*taux+degressif);
+  const total=bilR(mensuel.af+mensuel.afMaj);
+  const detail=[{id:'af_base',l:`${n} enfants à charge : ${bilPct(bilP('af_taux_2')+bilP('af_taux_sup')*(n-2))} de la base mensuelle (${fmt(B,2)} €)`,txt:bilMois(base),montant:bilR(base*12)}];
+  if(maj>0) detail.push({id:'af_maj',l:`Majoration pour âge, ${eligibles.length} enfant${eligibles.length>1?'s':''}`,txt:bilMois(maj),montant:bilR(maj*12)});
+  if(taux<1) detail.push({id:'af_mod',l:`Ressources au-dessus du ${R<=p2?'premier':'second'} plafond (${bilEur(plaf)}) : ${bilPct(taux)} du montant`,txt:`ressources de ${bilEur(R)}`,montant:bilR(-(base+maj)*(1-taux)*12)});
+  if(degressif>0) detail.push({id:'af_deg',l:"Complément dégressif, juste au-dessus du plafond",txt:bilMois(degressif),montant:bilR(degressif*12)});
+  ligne('af',"Allocations familiales",total,detail);
+ }
+
+ /* allocation de base de la prestation d'accueil du jeune enfant : une par foyer */
+ if(ages.some(a=>a<bilP('ab_age'))){
+  const pPlein=bilPlafPf(bilP('ab_plaf'),bilP('ab_plaf_maj'),n,majore), pPartiel=bilPlafPf(bilP('ab_plaf_partiel'),bilP('ab_plaf_partiel_maj'),n,majore);
+  const t=R<=pPlein?bilP('ab_taux'):R<=pPartiel?bilP('ab_taux_partiel'):0;
+  if(t>0){ mensuel.ab=bilR(B*t);
+   ligne('ab',"Allocation de base (jeune enfant)",mensuel.ab,[{id:'ab_base',l:`Taux ${R<=pPlein?'plein':'partiel'} : ${bilPct(t)} de la base mensuelle`,txt:`${bilMois(mensuel.ab)} ; ressources de ${bilEur(R)}, plafond de ${bilEur(R<=pPlein?pPlein:pPartiel)}`,montant:bilR(mensuel.ab*12)}]); }
+ }
+
+ /* complément familial : au moins trois enfants, tous âgés de 3 ans et plus */
+ const agesCf=bilEnfantsPf(F.enfants,bilP('cf_age_max')), nCf=agesCf.length;
+ if(nCf>=bilP('cf_nb_min')&&agesCf.every(a=>a>=bilP('cf_age_min'))){
+  const pBase=bilPlafPf(bilP('cf_plaf'),bilP('cf_plaf_maj'),nCf,majore), pMajore=bilPlafPf(bilP('cf_plaf_majore'),bilP('cf_plaf_majore_maj'),nCf,majore);
+  const cfB=B*bilP('cf_taux'), cf=R<=pMajore?B*bilP('cf_taux_majore'):R<=pBase?cfB:Math.max(0,(pBase+12*cfB-R)/12);
+  if(cf>0){ mensuel.cf=bilR(cf); mensuel.cfBase=bilR(Math.min(cf,cfB));
+   const quoi=R<=pMajore?`Montant majoré : ${bilPct(bilP('cf_taux_majore'))} de la base mensuelle`:R<=pBase?`${bilPct(bilP('cf_taux'))} de la base mensuelle`:"Montant dégressif, juste au-dessus du plafond";
+   ligne('cf',"Complément familial",mensuel.cf,[{id:'cf_base',l:quoi,txt:`${bilMois(mensuel.cf)} ; ressources de ${bilEur(R)}, plafond de ${bilEur(R<=pMajore?pMajore:pBase)}`,montant:bilR(mensuel.cf*12)}]); }
+ }
+
+ /* allocation de rentrée scolaire : une fois par an, par enfant d'âge scolaire */
+ const scol=ages.filter(a=>a>=bilP('ars_age_min')&&a<bilP('ars_age_max'));
+ if(scol.length){
+  const montants=scol.map(a=>bilR(B*bilP(a<bilP('ars_age_college')?'ars_taux_primaire':a<bilP('ars_age_lycee')?'ars_taux_college':'ars_taux_lycee')));
+  const plein=bilR(montants.reduce((s,x)=>s+x,0)), plaf=bilP('ars_plaf')*(1+bilP('ars_plaf_enf')*n);
+  let ars=R<=plaf?plein:bilR(Math.max(0,plaf+plein-R)); if(ars<bilP('ars_min')) ars=0;
+  if(ars>0){ mensuel.ars=ars; const net=bilR(ars*(1-crds));
+   const detail=scol.map((a,i)=>({id:'ars_enf',l:`Enfant de ${a} ans`,txt:"versée en août",montant:montants[i]}));
+   if(ars<plein) detail.push({id:'ars_deg',l:`Ressources au-dessus du plafond (${bilEur(plaf)}) : montant réduit d'autant`,txt:`ressources de ${bilEur(R)}`,montant:bilR(ars-plein)});
+   detail.push({id:'crds',l:"CRDS de "+bilPct(crds),txt:"retenue sur la prestation",montant:bilR(net-ars)});
+   lignes.push({id:'ars',l:"Allocation de rentrée scolaire",montant:net,precision:'exact',src:'bil',detail}); }
+ }
+ return {lignes,mensuel,nbPf:n,ressources:R};
+}
+
+/* Complément de mode de garde, emploi direct (formule en vigueur depuis septembre 2025), pour un mois et un enfant.
+   a = { mode:'am'|'gad', heures, cout (par heure), ressourcesMois, nbCharge } */
+const BIL_GARDE={am:"assistante maternelle",gad:"garde à domicile",creche:"crèche"};
+function bilCmgMois(a){
+ const A=a||{}, h=bilNum(A.heures), c=bilNum(A.cout), cout=bilR(h*c), mode=A.mode==='am'||A.mode==='gad'?A.mode:null;
+ const efforts=bilP('cmg_effort_'+(mode||'am')), n=Math.max(1,Math.floor(bilNum(A.nbCharge)));
+ const taux=efforts[n<=3?n-1:n<=7?3:4];
+ if(!mode||!(cout>0)) return {cout,coutRetenu:0,taux,reste:cout,cmg:0};
+ const res=Math.min(bilP('cmg_res_max'),Math.max(bilP('cmg_res_min'),bilNum(A.ressourcesMois)));
+ const retenu=h*Math.min(c,bilP('cmg_plaf_'+mode)), cmg=bilR(Math.max(0,retenu*(1-res*taux/bilP('cmg_ref_'+mode))));
+ return {cout,coutRetenu:bilR(retenu),taux,reste:bilR(cout-cmg),cmg};
+}
+/* CMG annuel du foyer : un calcul par enfant gardé. foyer = { enfants:[{age, garde:{mode, heures, cout}}], isole, actif }
+   actif : faux si aucun adulte ne travaille (pas de CMG, mais la dépense de garde reste connue pour le crédit d'impôt). */
+function bilCmg(foyer,ressources){
+ const F=foyer||{}, enfants=F.enfants||[], nbCharge=bilEnfantsPf(enfants).length, limite=bilP(F.isole?'cmg_age_isole':'cmg_age');
+ const detail=[], parEnfant=[], coutParEnfant=[];
+ enfants.forEach(e=>{ const age=bilAge(e&&e.age), g=(e&&e.garde)||{};
+  if(age==null||!BIL_GARDE[g.mode]){ parEnfant.push(0); coutParEnfant.push(0); return; }
+  const m=bilCmgMois({mode:g.mode,heures:g.heures,cout:g.cout,ressourcesMois:bilNum(ressources)/12,nbCharge}), cmg=age<limite&&F.actif!==false?bilR(m.cmg*12):0;
+  parEnfant.push(cmg); coutParEnfant.push(bilR(m.cout*12));
+  if(cmg>0) detail.push({id:'cmg_enf',l:`Enfant de ${age} an${age>1?'s':''}, ${BIL_GARDE[g.mode]}`,
+   txt:`${bilMois(m.cmg)} pour ${fmt(bilNum(g.heures),0)} heures à ${fmt(bilNum(g.cout),2)} € ; il reste ${bilMois(m.reste)} à la charge du foyer`,montant:cmg}); });
+ const total=bilR(parEnfant.reduce((s,x)=>s+x,0));
+ const lignes=total>0?[{id:'cmg',l:"Complément de mode de garde",montant:total,precision:'simplifie',src:'bil',detail}]:[];
+ return {lignes,parEnfant,coutParEnfant,total};
+}
+
+/* Prime d'activité. foyer = { couple, nbEnfants (moins de 25 ans), isoleMajore, logement } ;
+   revenus : salaire net mensuel de chaque adulte ; prestations : prestations familiales mensuelles comptées
+   (allocations hors majoration pour âge, allocation de base, complément familial au taux de base). */
+function bilPrimeActivite(foyer,revenus,prestations,autres){
+ const F=foyer||{}, revs=(revenus||[]).map(bilNum), total=revs.reduce((s,x)=>s+x,0), pf=bilNum(prestations), aut=bilNum(autres);
+ const base=bilP('pa_base'), nbEnfants=Math.max(0,Math.floor(bilNum(F.nbEnfants))), nbPers=(F.couple?2:1)+nbEnfants;
+ /* montant forfaitaire : majoré pour chaque personne du foyer */
+ let coef=1; for(let i=2;i<=nbPers;i++) coef+=i===2?bilP('pa_maj_1'):i===3?bilP('pa_maj_2'):i===4&&F.couple?bilP('pa_maj_2'):bilP('pa_maj_sup');
+ const majore=!F.couple&&!!F.isoleMajore&&nbEnfants>0;
+ const forfaitaire=bilR(base*(majore?bilP('pa_isole')+bilP('pa_isole_enf')*nbEnfants:coef));
+ /* bonification individuelle, selon le salaire de chacun */
+ const smic=bilP('smic_h_juin'), s1=bilP('pa_bonif_min')*smic, s2=bilP('pa_bonif_max')*smic, bMax=bilP('pa_bonif_taux')*base;
+ const bonifs=revs.map(r=>bilR(Math.min(1,Math.max(0,(r-s1)/(s2-s1)))*bMax)), bonif=bonifs.reduce((s,x)=>s+x,0);
+ const forfaitLogement=F.logement?bilR(nbPers===1?bilP('pa_fl_1')*base:nbPers===2?bilP('pa_fl_2')*base*(1+bilP('pa_maj_1')):bilP('pa_fl_3')*base*(1+bilP('pa_maj_1')+bilP('pa_maj_2'))):0;
+ const ressources=total+pf+aut+forfaitLogement, retranche=Math.max(forfaitaire,ressources);
+ let mensuel=total>0?bilR(forfaitaire+bilP('pa_pente')*total+bonif-retranche):0;
+ if(!(mensuel>=bilP('pa_min'))) mensuel=0;
+ const sortie={ligne:null,mensuel,forfaitaire,bonifs,forfaitLogement,ressources:bilR(ressources)};
+ if(mensuel>0){ const crds=bilP('crds'), brut=bilR(mensuel*12), net=bilR(brut*(1-crds));
+  const detail=[{id:'pa_mf',l:`Montant forfaitaire d'un foyer de ${nbPers} personne${nbPers>1?'s':''}${majore?', majoré pour un parent isolé':''}`,txt:bilMois(forfaitaire),montant:bilR(forfaitaire*12)},
+   {id:'pa_rev',l:`${bilPct(bilP('pa_pente'))} des revenus professionnels`,txt:`revenus de ${bilMois(total)}`,montant:bilR(bilP('pa_pente')*total*12)}];
+  if(bonif>0) detail.push({id:'pa_bonif',l:"Bonification individuelle",txt:bilMois(bonif),montant:bilR(bonif*12)});
+  detail.push({id:'pa_res',l:"Ressources du foyer, retranchées",txt:`revenus professionnels${aut>0?`, pensions de retraite (${bilMois(aut)})`:''}${pf>0?`, prestations familiales (${bilMois(pf)})`:''}${forfaitLogement>0?`, forfait logement (${bilMois(forfaitLogement)})`:''}${ressources<forfaitaire?' ; comptées au moins pour le montant forfaitaire':''}`,montant:bilR(-retranche*12)});
+  detail.push({id:'crds',l:"CRDS de "+bilPct(crds),txt:"retenue sur la prime",montant:bilR(net-brut)});
+  sortie.ligne={id:'pa',l:"Prime d'activité",montant:net,precision:'simplifie',src:'bil',detail}; }
+ return sortie;
+}
+
+/* ---------- Mon bilan, étape 3 : fonctionnaire, micro-entrepreneur, retraité ---------- */
+/* Chaque fonction renvoie la même forme que bilCotisPrive (brut, lignes, salariales, csgDed, csgNonDed, crds, net,
+   netImposable, patronales, reduction, coutEmployeur), plus `nature` : 'salaire', 'micro' ou 'pension'. */
+
+/* Fonctionnaire titulaire. traitement : traitement indiciaire brut annuel ; primes : primes et indemnités annuelles ;
+   versant : 'etat', ou 'local' (territorial et hospitalier, aux taux de la CNRACL).
+   Côté employeur : retraite, invalidité, maladie, famille, logement, autonomie ; hors versement mobilité, formation
+   et fonds pour l'emploi hospitalier. */
+function bilCotisFonct(traitement,primes,versant){
+ const t=bilNum(traitement), p=bilNum(primes), b=t+p, v=versant==='local'?'local':'etat', lignes=[], lib=id=>BIL_P.p[id].l;
+ const add=(id,part,l,base,taux)=>{ if(base>0&&taux>0) lignes.push({id,part,l,base:bilR(base),taux,montant:bilR(base*taux)}); };
+ const rafp=Math.min(p,bilP('fp_rafp_plaf')*t);
+ add('fp_pension','sal',lib('fp_pension'),t,bilP('fp_pension'));
+ add('fp_rafp','sal',lib('fp_rafp'),rafp,bilP('fp_rafp'));
+ const assiette=b-bilP('csg_abat')*Math.min(b,bilP('n_pass_4')*bilP('pass'));
+ add('csg_ded','csg',lib('csg_ded'),assiette,bilP('csg_ded'));
+ add('csg_nonded','csg',lib('csg_nonded'),assiette,bilP('csg_nonded'));
+ add('crds','csg',lib('crds'),assiette,bilP('crds'));
+ add('fp_pension_pat','pat',lib('fp_'+v+'_pension_pat'),t,bilP('fp_'+v+'_pension_pat'));
+ add('fp_ati','pat',lib('fp_'+v+'_ati'),t,bilP('fp_'+v+'_ati'));
+ add('fp_rafp_pat','pat',lib('fp_rafp_pat'),rafp,bilP('fp_rafp_pat'));
+ add('fp_maladie','pat',lib('fp_'+v+'_maladie'),t,bilP('fp_'+v+'_maladie'));
+ add('pat_famille','pat',lib('pat_famille'),t,bilP('pat_famille'));
+ add('pat_fnal','pat',lib('pat_fnal'),t,bilP('pat_fnal'));
+ add('pat_csa','pat',lib('pat_csa'),t,bilP('pat_csa'));
+ const mt=id=>bilSomme(lignes,l=>l.id===id), salariales=bilSomme(lignes,l=>l.part==='sal'), patronales=bilSomme(lignes,l=>l.part==='pat');
+ const csgDed=mt('csg_ded'), csgNonDed=mt('csg_nonded'), crds=mt('crds');
+ return {brut:b,traitement:t,primes:p,versant:v,nature:'salaire',lignes,salariales,csgDed,csgNonDed,crds,
+  net:bilR(b-salariales-csgDed-csgNonDed-crds),netImposable:bilR(b-salariales-csgDed),
+  patronales,reduction:0,coefficient:0,coutEmployeur:bilR(b+patronales)};
+}
+
+/* Micro-entrepreneur. ca : chiffre d'affaires annuel ; activite : 'vente', 'services' ou 'liberal' (régime général).
+   Les cotisations sont un pourcentage du chiffre d'affaires, CSG comprise. Les dépenses professionnelles ne sont pas déduites.
+   benefice : chiffre d'affaires après l'abattement fiscal forfaitaire, qui sert à l'impôt, aux prestations et à la prime d'activité. */
+const BIL_ACTIVITES=[['vente',"Vente de marchandises, restauration, hébergement"],['services',"Prestations de services commerciales ou artisanales"],['liberal',"Activité libérale (hors Cipav)"]];
+function bilCotisMicro(ca,activite){
+ const c=bilNum(ca), act=BIL_ACTIVITES.some(a=>a[0]===activite)?activite:'services', lignes=[], lib=id=>BIL_P.p[id].l;
+ const add=(id,cle,suite)=>{ const taux=bilP(cle); if(c>0&&taux>0) lignes.push({id,part:'sal',l:lib(cle)+(suite||''),base:bilR(c),taux,montant:bilR(c*taux)}); };
+ add('mi_cot','mi_taux_'+act,", CSG et CRDS comprises"); add('mi_cfp','mi_cfp_'+act);
+ const salariales=bilSomme(lignes,()=>true), benefice=c>0?bilR(Math.max(0,c-Math.max(bilP('mi_abat_'+act)*c,bilP('mi_abat_min')))):0;
+ return {brut:c,activite:act,nature:'micro',plafond:bilP('mi_plaf_'+act),horsPlafond:c>bilP('mi_plaf_'+act),lignes,salariales,csgDed:0,csgNonDed:0,crds:0,net:bilR(c-salariales),netImposable:0,benefice,
+  patronales:0,reduction:0,coefficient:0,coutEmployeur:c};
+}
+
+/* Retraité : CSG, CRDS et contribution autonomie sur la pension, selon le revenu fiscal de référence et le nombre de parts. */
+const BIL_TAUX_RET=['nul','reduit','median','plein'];
+function bilTauxCsgRetraite(rfr,parts){
+ if(rfr==null||rfr===''||!Number.isFinite(+rfr)) return 'plein';
+ const p=Number.isFinite(+parts)&&+parts>1?+parts:1, demis=(p-1)*2, r=Math.max(0,+rfr);
+ for(let i=1;i<=3;i++) if(r<=bilP('re_seuil_'+i)+demis*bilP('re_seuil_'+i+'_demi')) return BIL_TAUX_RET[i-1];
+ return 'plein';
+}
+function bilCotisRetraite(pension,partCompl,rfr,parts){
+ const b=bilNum(pension), pc=Math.min(1,Math.max(0,Number.isFinite(+partCompl)?+partCompl:0)), taux=b>0?bilTauxCsgRetraite(rfr,parts):'nul', lignes=[], lib=id=>BIL_P.p[id].l;
+ const add=(id,part,cle,base)=>{ const t=bilP(cle); if(base>0&&t>0) lignes.push({id,part,l:lib(cle),base:bilR(base),taux:t,montant:bilR(base*t)}); };
+ if(taux==='reduit') add('re_csg_ded','csg','re_csg_reduit',b);
+ if(taux==='median') add('re_csg_ded','csg','re_csg_median_ded',b);
+ if(taux==='plein') add('re_csg_ded','csg','re_csg_plein_ded',b);
+ if(taux==='median'||taux==='plein') add('re_csg_nonded','csg','re_csg_nonded',b);
+ if(taux!=='nul') add('crds','csg','crds',b);
+ if(taux==='median'||taux==='plein'){ add('re_casa','csg','re_casa',b); add('re_maladie','sal','re_maladie',b*pc); }
+ const de=id=>bilSomme(lignes,l=>l.id===id), csgDed=de('re_csg_ded'), csgNonDed=de('re_csg_nonded'), crds=de('crds'), casa=de('re_casa'), salariales=de('re_maladie');
+ return {brut:b,nature:'pension',taux,partCompl:pc,lignes,salariales,csgDed,csgNonDed,crds,casa,
+  net:bilR(b-csgDed-csgNonDed-crds-casa-salariales),netImposable:bilR(b-csgDed-salariales),patronales:0,reduction:0,coefficient:0,coutEmployeur:b};
+}
+/* ---------- Mon bilan, étape 4 : consommation, services publics, usage de ce qui est versé ---------- */
+/* Ce sont des estimations fondées sur des moyennes publiées (voir BIL_P) : elles situent un ordre de grandeur, pas la situation réelle du foyer. */
+const bilNbre=x=>{ const v=typeof x==='number'?x:parseFloat(String(x==null?'':x).replace(/\s/g,'').replace(',','.')); return Number.isFinite(v)?v:null; };
+/* Unités de consommation du foyer (échelle de l'Insee) : un ou deux adultes, enfants dont l'âge est connu */
+function bilUc(nbAdultes,agesEnfants){
+ const ages=(Array.isArray(agesEnfants)?agesEnfants:[]).map(bilAge).filter(a=>a!=null);
+ return bilR(1+(nbAdultes>=2?bilP('uc_adulte'):0)+ages.reduce((s,a)=>s+(a>=bilP('uc_age')?bilP('uc_adulte'):bilP('uc_enfant')),0));
+}
+const BIL_CARBURANTS=[['gazole',"Gazole"],['e10',"Essence SP95-E10"],['e5',"Essence SP95 ou SP98"],['e85',"Superéthanol E85"]];
+const BIL_CINQUIEMES=['premier','deuxième','troisième','quatrième','cinquième'];
+/* TVA, taxe sur les carburants et taxe foncière d'un foyer.
+   dispo : revenu disponible annuel ; saisie = {uc, tf, epargne (en pour cent, vide : moyenne de la tranche), litres, carburant} */
+function bilConso(dispo,saisie){
+ const S=(saisie&&typeof saisie==='object')?saisie:{}, d=bilNbre(dispo)||0, uc=bilNbre(S.uc)>0?bilNbre(S.uc):1, niveauVie=bilR(d/uc);
+ /* cinquième de niveau de vie : à la borne, le foyer est dans celui du dessus */
+ let tranche=1; while(tranche<5&&niveauVie>=bilP('nv_q'+tranche)) tranche++;
+ /* taux d'épargne moyen estimé à ce niveau de vie : les taux moyens des cinq cinquièmes, placés au niveau de vie médian de chacun et reliés par des droites.
+    Un taux par palier ferait baisser la TVA d'un foyer qui gagne un euro de plus en changeant de cinquième. */
+ const pts=[1,2,3,4,5].map(k=>[bilP('nv_c'+k),bilP('ep_q'+k)]), j=pts.findIndex(q=>niveauVie<=q[0]);
+ const epargneDefaut=j===0?pts[0][1]:j<0?pts[4][1]:pts[j-1][1]+(niveauVie-pts[j-1][0])/(pts[j][0]-pts[j-1][0])*(pts[j][1]-pts[j-1][1]);
+ const e=bilNbre(S.epargne), epargne=e==null?epargneDefaut:Math.min(100,Math.max(0,e))/100;
+ const tf=bilNum(S.tf), base=Math.max(0,d-tf), conso=bilR(base*(1-epargne)), tva=bilR(conso*bilP('tva_conso'));
+ const carb=BIL_CARBURANTS.find(c=>c[0]===S.carburant)||BIL_CARBURANTS[1], litres=bilNum(S.litres), tarif=bilP('acc_'+carb[0]), accise=bilR(litres*tarif);
+ const lignes=[], src='bil', nb=x=>x.toLocaleString('fr-FR');
+ if(tva>0) lignes.push({id:'tva',l:"TVA sur la consommation",montant:tva,precision:'estimation',src,detail:[
+  {id:'tva_nv',l:"Niveau de vie du foyer",txt:`${bilEur(niveauVie)} par unité de consommation (${nb(uc)} unité${uc>=2?'s':''}) : ${BIL_CINQUIEMES[tranche-1]} cinquième des niveaux de vie`,montant:null},
+  {id:'tva_conso',l:"Consommation estimée",txt:`revenu disponible${tf>0?' après taxe foncière':''} de ${bilEur(base)}, dont ${bilPct(epargne,1)} épargnés (${e==null?'taux moyen estimé à ce niveau de vie':'taux saisi'})`,montant:conso},
+  {id:'tva_taux',l:`TVA : ${bilPct(bilP('tva_conso'))} de la consommation`,txt:"moyenne nationale, tous taux de TVA confondus",montant:tva}]});
+ if(accise>0) lignes.push({id:'carbu',l:"Taxe sur les carburants (accise)",montant:accise,precision:'exact',src,detail:[
+  {id:'carbu',l:carb[1],txt:`${nb(litres)} litres × ${fmt(tarif,4)} € par litre, hors TVA`,montant:accise}]});
+ if(tf>0) lignes.push({id:'tf',l:"Taxe foncière",montant:bilR(tf),precision:'saisi',src,detail:[{id:'tf',l:"Montant saisi",txt:"taxe foncière de l'année",montant:bilR(tf)}]});
+ return {uc,niveauVie,tranche,epargneDefaut,epargne,conso,tva,accise,tf:bilR(tf),lignes,total:bilR(tva+accise+tf)};
+}
+/* Services publics reçus par le foyer : école des enfants, soins, place en crèche (moyennes nationales).
+   foyer = {adultes:[{age}], enfants:[{age, etudiant, garde:{mode, heures, cout}}], uc} */
+const BIL_NIVEAUX=[['eco_mat','eco_pub_1',"école maternelle"],['eco_elem','eco_pub_1',"école élémentaire"],['eco_college','eco_pub_2',"collège"],['eco_lycee','eco_pub_2',"lycée"],['eco_sup','eco_pub_sup',"enseignement supérieur"]];
+function bilNiveauEcole(age,etudiant){
+ const a=bilAge(age); if(a==null||a<bilP('eco_age_min')) return null;
+ if(a<bilP('ars_age_min')) return BIL_NIVEAUX[0];
+ if(a<bilP('ars_age_college')) return BIL_NIVEAUX[1];
+ if(a<bilP('ars_age_lycee')) return BIL_NIVEAUX[2];
+ if(a<bilP('ars_age_max')) return BIL_NIVEAUX[3];
+ return etudiant?BIL_NIVEAUX[4]:null;
+}
+function bilServices(foyer){
+ const F=(foyer&&typeof foyer==='object')?foyer:{}, enfants=(Array.isArray(F.enfants)?F.enfants:[]).map(e=>e||{}), adultes=(Array.isArray(F.adultes)?F.adultes:[]).map(a=>a||{});
+ const uc=bilNbre(F.uc)>0?bilNbre(F.uc):1, lignes=[], src='bil', nb=x=>x.toLocaleString('fr-FR'), ans=a=>`${a} an${a>1?'s':''}`;
+ /* école : dépense moyenne par élève du niveau, pour la part financée par les administrations publiques */
+ const ecole=enfants.map(e=>{ const n=bilNiveauEcole(e.age,!!e.etudiant); if(!n) return null;
+  /* l'année de ses 3 ans, l'enfant entre à l'école en septembre : seuls les mois d'école sont comptés */
+  const entree=bilAge(e.age)===bilP('eco_age_min'), mois=entree?bilP('eco_mois_entree'):12;
+  return {id:'ecole',l:`Enfant de ${ans(bilAge(e.age))} : ${n[2]}`,txt:`${bilEur(bilP(n[0]))} de dépense moyenne par élève, dont ${bilPct(bilP(n[1]))} financés par les administrations publiques${entree?` ; ${mois} mois sur 12 l'année de l'entrée à l'école`:''}`,montant:bilR(bilP(n[0])*bilP(n[1])*mois/12)}; }).filter(Boolean);
+ if(ecole.length) lignes.push({id:'ecole',l:"École et études",montant:bilSomme(ecole,()=>true),precision:'estimation',src,detail:ecole});
+ /* soins : moyenne des ménages dont la personne de référence a l'âge du plus âgé des adultes, par unité de consommation */
+ const ages=adultes.map(a=>bilNbre(a.age)).filter(a=>a>0);
+ if(ages.length){ const age=Math.max(...ages), T=bilP('sante_uc'), i=Math.max(0,T.reduce((k,[borne],j)=>age>=borne?j:k,0)), montant=bilR(T[i][1]*uc);
+  const tranche=i===T.length-1?`${T[i][0]} ans ou plus`:`de ${T[i][0]} à ${T[i+1][0]-1} ans`;
+  lignes.push({id:'sante',l:"Soins de santé",montant,precision:'estimation',src,detail:[
+   {id:'sante',l:`Ménages dont la personne de référence a ${tranche}`,txt:`${bilEur(T[i][1])} par unité de consommation × ${nb(uc)} unité${uc>=2?'s':''} ; valeurs de ${BIL_P.p.sante_uc.d.slice(0,4)}`,montant}]}); }
+ /* crèche : prix de revient de l'heure moins ce que paie la famille, pour les heures saisies */
+ /* jusqu'à l'entrée à l'école : douze mois avant 3 ans, les mois d'avant la rentrée l'année des 3 ans, rien ensuite (jamais école et crèche sur les mêmes mois) */
+ const creche=enfants.map(e=>{ const a=bilAge(e.age), g=e.garde||{}; if(a==null||a>bilP('eco_age_min')||g.mode!=='creche') return null;
+  const mois=a===bilP('eco_age_min')?12-bilP('eco_mois_entree'):12, heures=bilNum(g.heures)*mois, cout=bilNum(g.cout), montant=bilR(Math.max(0,bilP('creche_revient')-cout)*heures); if(!(montant>0)) return null;
+  return {id:'creche',l:`Enfant de ${ans(a)} : ${nb(heures)} heures par an`,txt:`prix de revient de ${fmt(bilP('creche_revient'),2)} € par heure, moins ${fmt(cout,2)} € payés par la famille${mois<12?` ; ${mois} mois de crèche avant l'entrée à l'école`:''}`,montant}; }).filter(Boolean);
+ if(creche.length) lignes.push({id:'creche',l:"Place en crèche",montant:bilSomme(creche,()=>true),precision:'estimation',src,detail:creche});
+ return {lignes,total:bilSomme(lignes,()=>true)};
+}
+/* Où va ce que je verse : le montant réparti comme la dépense publique de la dernière année connue, par usage (onglet « Où va l'argent »).
+   C'est une clé moyenne nationale, pas un fléchage : aucun impôt n'est affecté à ces postes dans ces proportions. */
+function bilOuVa(montant){
+ /* parts rapportées à la somme des dix usages (elle diffère du total publié d'un million d'euros, par arrondi) : elles font exactement 1 */
+ const annee=OVA.y1, m=bilNum(montant), total=OVA_L1.reduce((t,c)=>t+ovaRaw(c,annee),0);
+ const lignes=OVA_L1.map(c=>({id:c,l:ovaLabel(c),part:ovaRaw(c,annee)/total})).sort((a,b)=>b.part-a.part).map(x=>({...x,montant:bilR(m*x.part)}));
+ return {annee,lignes};
+}
 /* ---------- niches fiscales ---------- */
 const NICHES={total:{2024:89.4,2025:91.8},count:470,big:22,bigShare:60,top15:46.7,pib2025:3.07,shareRFN:25.8,shareIR:46.4,shareEnergie:52.4,oldConv2025:103.1,plf2024:78.4,
  items:[
