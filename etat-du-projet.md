@@ -1,6 +1,6 @@
 # Projet : application « Les comptes publics de la France »
 
-État au 4 octobre 2026 (après la reprise des défauts mineurs des quatre étapes du simulateur personnel).
+État au 4 octobre 2026 (après la livraison de la projection de « Mon bilan » jusqu'à la retraite et au-delà).
 
 ## Objectif
 Application web pédagogique pour comprendre le budget global de la France :
@@ -10,14 +10,16 @@ dépenses, soldes), sur 2007-2026, avec contexte, sources et fiabilité.
 ## Hébergement et versions
 - Version de référence : GitHub Pages, dépôt
   https://github.com/CaveJohnsonQuote/comptes-publics-france (branche main).
-  Au 4 octobre 2026 le dépôt contient encore la version de l'étape 1
-  (549 748 octets). Jonathan a demandé de pousser la version courante et cet
-  état du projet : la poussée a été refusée, le dépôt n'étant pas autorisé
-  pour la session. Il faut soit ajouter le dépôt aux sources de la session
-  (accès en écriture), soit déposer à la main index.html et
-  etat-du-projet.md.
-- Version courante : 717 162 octets (étapes 1 à 4 et reprise des défauts
-  mineurs), remise dans la conversation le 4 octobre 2026.
+  Le 4 octobre 2026, Jonathan y a déposé la version d'après la reprise des
+  défauts mineurs (717 162 octets, comparée octet par octet à la livraison :
+  identique), l'état du projet correspondant et le plan des défauts mineurs.
+  Reste à déposer la version courante et cet état du projet : la poussée
+  depuis la session est refusée, le dépôt n'étant pas dans les dépôts
+  autorisés (l'ajouter aux sources de la session avec droit d'écriture, ou
+  déposer les deux fichiers à la main).
+- Version courante : 754 761 octets (étapes 1 à 4, reprise des défauts
+  mineurs, projection jusqu'à la retraite), remise dans la conversation le
+  4 octobre 2026.
 - Copie de travail : dossier « 05 - Comptes publics » (OneDrive), fichier
   index.html, resté à la version de l'étape 1 : les sessions suivantes
   tournaient sur un autre ordinateur (« pc-jonathan »), sans dossier connecté.
@@ -29,7 +31,7 @@ dépenses, soldes), sur 2007-2026, avec contexte, sources et fiabilité.
   d'où le passage par GitHub Pages.
 
 ## Architecture
-- Un seul fichier HTML autonome (CSS et JS inclus), environ 4 900 lignes, 717 Ko (pas de contrainte de poids : décision de Jonathan du 4 octobre 2026).
+- Un seul fichier HTML autonome (CSS et JS inclus), environ 5 150 lignes, 755 Ko (pas de contrainte de poids : décision de Jonathan du 4 octobre 2026).
 - Graphiques : Chart.js 4.4.1 (UMD, cdnjs) ; polices Google Fonts
   (Newsreader, Instrument Sans) ; thème clair et sombre.
 - Données dans des objets JS : DATA (etat, secu, coll), APU, EARLY
@@ -50,8 +52,10 @@ Europe ; Sources.
   Plans clos : claude/plans/2026-10-02-mon-bilan-etape-1.md,
   claude/plans/2026-10-03-mon-bilan-etape-2.md,
   claude/plans/2026-10-03-mon-bilan-etape-3.md,
-  claude/plans/2026-10-04-mon-bilan-etape-4.md et
-  claude/plans/2026-10-04-defauts-mineurs.md (reprise des défauts mineurs).
+  claude/plans/2026-10-04-mon-bilan-etape-4.md,
+  claude/plans/2026-10-04-defauts-mineurs.md (reprise des défauts mineurs) et
+  claude/plans/2026-10-04-mon-bilan-projection.md (projection, cahier des
+  charges claude/specs/2026-10-04-mon-bilan-projection-design.md).
 - Ce que fait l'outil : foyer d'un ou deux adultes, chacun salarié du privé
   (cadre ou non), fonctionnaire titulaire (État, ou territorial et
   hospitalier), micro-entrepreneur (vente, services, libéral hors Cipav),
@@ -91,7 +95,7 @@ Europe ; Sources.
     renvoi aux simulateurs officiels. Une saisie hors bornes est ramenée à la
     borne et signalée sous le champ ; une dépense fiscale sans effet et une
     garde à domicile saisie pour plusieurs enfants sont signalées.
-- Code : BIL_P (228 barèmes et moyennes datés et sourcés, affichés dans l'onglet
+- Code : BIL_P (233 barèmes, moyennes et valeurs de départ datés et sourcés, affichés dans l'onglet
   Sources), bilP ; moteur en fonctions pures : bilRgduCoef, bilCotisPrive,
   bilCotisFonct, bilCotisMicro, bilTauxCsgRetraite, bilCotisRetraite,
   bilBareme, bilAge, bilEnfantsFisc, bilImpot (salaires, pensions, bénéfice
@@ -115,7 +119,7 @@ Europe ; Sources.
   qu'il produit (situation supposée stable), en partant de la CSG au taux
   plein ; dans une bande sous chaque seuil aucun taux ne se confirme : le plus
   bas est retenu et l'écran le signale (info.rfrRetraite[n].limite).
-- Vérification : 282 tests. L'étape 4 n'est pas contrôlable par OpenFisca :
+- Vérification : 321 tests. L'étape 4 n'est pas contrôlable par OpenFisca :
   ce sont des estimations, vérifiées par des calculs à la main et relues par
   un relecteur indépendant (3 000 foyers aléatoires sans erreur de totaux).
   Quarante-huit foyers types comparés à
@@ -219,6 +223,60 @@ Europe ; Sources.
   de la fonction publique. Étape 4 : taxes sur le tabac, l'alcool,
   l'électricité, le gaz, les assurances ; GPL ; dépenses publiques
   collectives (défense, police, justice, dette) non réparties.
+- Projection jusqu'à la retraite et au-delà (livrée le 4 octobre 2026) :
+  section repliable « Et jusqu'à la retraite ? » sous les résultats. Le foyer
+  saisi est rejoué par le moteur pour chaque année, de 2026 à l'âge de fin,
+  avec les barèmes et en euros de 2026 ; l'année 0 est le bilan actuel.
+  - Décisions de Jonathan : les enfants vieillissent puis quittent le foyer ;
+    euros de 2026 ; la projection continue après le départ en retraite ; la
+    pension vient d'un taux de remplacement, remplaçable par un montant ;
+    études jusqu'à un âge modifiable.
+  - Hypothèses modifiables, valeurs de départ au registre (proj_*) :
+    évolution salariale 1 % par an en plus de l'inflation (convention de
+    l'outil entre 0,6 % par an de hausse générale de 1996 à 2019 et environ
+    1 % par an de progression avec l'âge, Insee Première n° 2079) ; départ à
+    64 ans (service-public, personnes nées à partir de 1969) ; pension nette
+    de 75 % du dernier revenu net (DREES, Études et Résultats n° 926,
+    génération 1946) ; fin à 86 ans (Insee, espérance de vie à 60 ans en
+    2025) ; études jusqu'à 21 ans (Insee, Formations et emploi 2025).
+  - Règles : revenus d'activité × (1 + évolution)^t ; à l'âge de départ,
+    situation « Retraité » avec la pension (part complémentaire de départ,
+    nulle pour un fonctionnaire) ; pension proposée = taux × net de la
+    dernière année d'activité ÷ (1 − taux normal des prélèvements) ; enfant
+    mineur compté étudiant de 18 ans à la fin d'études puis retiré ; garde
+    conservée jusqu'à l'année des 3 ans ; durée fixée par le premier adulte.
+  - Affichage : cumuls versé / reçu / solde sur l'ensemble, la vie active et
+    la retraite ; note « Comment lire ce solde » (les cotisations passées ne
+    sont pas comptées, la pension l'est en entier) ; rappel de la part de
+    l'employeur tant que les cotisations patronales ne sont pas comptées ;
+    alerte si un chiffre d'affaires dépasse le plafond du régime micro ;
+    graphique par année (reçu au-dessus de zéro, versé en dessous, solde en
+    ligne, trait à chaque départ) ; tableau des années à dix colonnes.
+  - Code : patch/bilan-projection.js (bilProjHyp, bilProjActif, bilProjAge,
+    bilProjSaisie, bilPensionProposee, bilProjection) ; dans bilan.js :
+    bilProjChampsHtml, bilProjPlanifie (250 ms), bilProjUpdate, bilProjChart ;
+    état state.bil.proj {ouvert, evolution, depart[2], remplacement,
+    pension[2], fin, etudes}. Rien n'est calculé tant que la section est
+    repliée ; pas de recalcul si la saisie n'a pas changé.
+  - Vérification : cas simple refait hors du moteur (pension proposée
+    19 658,87 €, année de retraite, cumuls) ; année 0 identique au bilan pour
+    les six exemples ; relecteur indépendant (400 foyers aléatoires, dix cas
+    recalculés au centime).
+  - Écarts au cahier des charges, à faire valider par Jonathan : graphique à
+    deux séries de barres (reçu, versé) et une ligne de solde au lieu de
+    quatre composantes empilées (les couleurs de l'application ne donnent pas
+    quatre teintes distinguables ; le partage par année est dans l'infobulle
+    et le tableau) ; la phrase « cotisations plafonnées et impôt un peu
+    surestimés » du § 8 est remplacée par une formulation sans sens affirmé.
+  - Question ouverte : conserver la garde payante d'un enfant de plus de
+    3 ans tant que le barème l'admet (6 ans, 12 ans pour un parent isolé), au
+    lieu de l'arrêter dès l'année suivante ?
+  - Défauts mineurs restants : second adulte projeté au-delà de 110 ans sans
+    avertissement ; fin des allocations aux 20 ans de l'aîné sans événement ;
+    taux de CSG des deux premières années de retraite calculé sans les
+    revenus d'activité de N−2 ; à 390 px, libellé du départ sur les barres
+    quand le départ est proche ; évolution négative pouvant passer sous le
+    SMIC sans signalement ; valeur de départ grisée ressemblant à une saisie.
 - Reprise des défauts mineurs (4 octobre 2026, plan
   claude/plans/2026-10-04-defauts-mineurs.md) : les 28 défauts reportés aux
   quatre étapes sont traités. Ce qui change dans les chiffres : SMIC annuel de
@@ -349,11 +407,9 @@ vue détaillée « Où va l'argent » ; simulateur personnel « Mon bilan » (qu
 étapes, puis reprise des défauts mineurs le 4 octobre 2026).
 
 Feuille de route demandée par Jonathan le 4 octobre 2026, dans cet ordre :
-0. « Mon bilan » : voir l'évolution de ce que je verse et de ce que je reçois
-   depuis la situation actuelle jusqu'à la retraite, en supposant la même
-   situation jusqu'à la retraite, avec une hypothèse d'évolution salariale
-   moyenne modifiable. Conception à faire valider avant tout développement
-   (proposition envoyée le 4 octobre 2026, en attente de réponse).
+0. « Mon bilan » : projection jusqu'à la retraite et au-delà. Livrée le
+   4 octobre 2026 (voir plus haut) ; deux écarts au cahier des charges et une
+   question sur la garde attendent l'avis de Jonathan.
 1. Budget 2027 : ajouter les données de la version initiale proposée par le
    gouvernement, en rendant la version visible à l'écran. Ensuite, sur
    demande : la version soumise au vote, puis la version adoptée, pour voir
@@ -388,13 +444,13 @@ Feuille de route demandée par Jonathan le 4 octobre 2026, dans cet ordre :
   renseigne les écarts connus dans les fichiers de cas, sans appel au modèle.
 - ue-flux-tests.mjs, ova-tests.mjs, bilan-tests.mjs, bilan-famille-tests.mjs,
   bilan-situations-tests.mjs, bilan-reste-tests.mjs, bilan-mineurs-tests.mjs,
-  tests-helpers.mjs : 282 tests automatisés (Node
+  bilan-projection-tests.mjs, tests-helpers.mjs : 321 tests automatisés (Node
   + Playwright 1.56 + chart.js 4.4.1 en local ; lancer
   `node --test tests/*.test.mjs`, les fichiers de test dans un dossier tests/
   à côté de index.html, renommés ue-flux.test.mjs, ova.test.mjs,
   bilan.test.mjs, bilan-famille.test.mjs, bilan-situations.test.mjs,
-  bilan-reste.test.mjs, bilan-mineurs.test.mjs et helpers.mjs, avec les trois
-  fichiers de cas types à côté).
+  bilan-reste.test.mjs, bilan-mineurs.test.mjs, bilan-projection.test.mjs et
+  helpers.mjs, avec les trois fichiers de cas types à côté).
 
 ## Préférences de travail
 - Échanges en français ; chiffres toujours sourcés avec un niveau de fiabilité.
@@ -412,3 +468,7 @@ Feuille de route demandée par Jonathan le 4 octobre 2026, dans cet ordre :
   « citations exactes » différentes pour la même page. Reprendre les valeurs
   et les dates, jamais des mots entre guillemets ; écrire « lecture de
   l'outil » quand une phrase va au-delà de ce que la page établit.
+- Avant de choisir les couleurs d'un graphique, les passer au validateur de
+  palette : les couleurs actuelles de l'application ne fournissent que deux
+  teintes sûres ensemble (bleu « État » et ocre « collectivités ») ; à
+  reprendre avec la refonte « Steep ».
