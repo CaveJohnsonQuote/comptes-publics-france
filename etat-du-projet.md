@@ -1,6 +1,6 @@
 # Projet : application « Les comptes publics de la France »
 
-État au 4 octobre 2026 (après la livraison de l'étape 4 : le simulateur personnel est complet, première version).
+État au 4 octobre 2026 (après la reprise des défauts mineurs des quatre étapes du simulateur personnel).
 
 ## Objectif
 Application web pédagogique pour comprendre le budget global de la France :
@@ -8,14 +8,19 @@ budget de l'État, de la Sécurité sociale et des collectivités (recettes,
 dépenses, soldes), sur 2007-2026, avec contexte, sources et fiabilité.
 
 ## Hébergement et versions
-- Version de référence : GitHub Pages (dépôt GitHub personnel).
+- Version de référence : GitHub Pages, dépôt
+  https://github.com/CaveJohnsonQuote/comptes-publics-france (branche main).
+  Au 4 octobre 2026 le dépôt contient encore la version de l'étape 1
+  (549 748 octets). Jonathan a demandé de pousser la version courante et cet
+  état du projet : la poussée a été refusée, le dépôt n'étant pas autorisé
+  pour la session. Il faut soit ajouter le dépôt aux sources de la session
+  (accès en écriture), soit déposer à la main index.html et
+  etat-du-projet.md.
+- Version courante : 717 162 octets (étapes 1 à 4 et reprise des défauts
+  mineurs), remise dans la conversation le 4 octobre 2026.
 - Copie de travail : dossier « 05 - Comptes publics » (OneDrive), fichier
-  index.html. Au 3 octobre 2026 ce dossier contient encore la version de
-  l'étape 1 (549 748 octets) : les sessions des étapes 2 à 4 tournaient sur
-  un autre ordinateur (« pc-jonathan »), sans dossier connecté. La version de
-  l'étape 4 (697 805 octets, qui contient les étapes 2 et 3) a été remise dans
-  la conversation ; Jonathan doit l'enregistrer dans le dossier puis la
-  pousser sur GitHub Pages.
+  index.html, resté à la version de l'étape 1 : les sessions suivantes
+  tournaient sur un autre ordinateur (« pc-jonathan »), sans dossier connecté.
 - Ancienne version Claude (sans API) : https://claude.ai/artifact/KL9RACo1y728M4oTDQV69f
 - Toujours partir de la dernière version pour toute modification : le fichier
   index.html du dossier contient tout le code (les fichiers de travail
@@ -24,7 +29,7 @@ dépenses, soldes), sur 2007-2026, avec contexte, sources et fiabilité.
   d'où le passage par GitHub Pages.
 
 ## Architecture
-- Un seul fichier HTML autonome (CSS et JS inclus), environ 4 800 lignes, 698 Ko.
+- Un seul fichier HTML autonome (CSS et JS inclus), environ 4 900 lignes, 717 Ko (pas de contrainte de poids : décision de Jonathan du 4 octobre 2026).
 - Graphiques : Chart.js 4.4.1 (UMD, cdnjs) ; polices Google Fonts
   (Newsreader, Instrument Sans) ; thème clair et sombre.
 - Données dans des objets JS : DATA (etat, secu, coll), APU, EARLY
@@ -44,8 +49,9 @@ Europe ; Sources.
 - Cahier des charges : claude/specs/2026-10-02-simulateur-personnel-design.md.
   Plans clos : claude/plans/2026-10-02-mon-bilan-etape-1.md,
   claude/plans/2026-10-03-mon-bilan-etape-2.md,
-  claude/plans/2026-10-03-mon-bilan-etape-3.md et
-  claude/plans/2026-10-04-mon-bilan-etape-4.md.
+  claude/plans/2026-10-03-mon-bilan-etape-3.md,
+  claude/plans/2026-10-04-mon-bilan-etape-4.md et
+  claude/plans/2026-10-04-defauts-mineurs.md (reprise des défauts mineurs).
 - Ce que fait l'outil : foyer d'un ou deux adultes, chacun salarié du privé
   (cadre ou non), fonctionnaire titulaire (État, ou territorial et
   hospitalier), micro-entrepreneur (vente, services, libéral hors Cipav),
@@ -79,24 +85,28 @@ Europe ; Sources.
     d'activité, avantages fiscaux (épargne retraite, dons, enfants scolarisés,
     garde hors du domicile, emploi à domicile).
   - Affichage : trois chiffres clés, taux de prélèvement, effet du quotient
-    familial (pour information), cascade du coût employeur au revenu
-    disponible, lignes dépliables avec le calcul et une étiquette de
-    précision, renvoi aux simulateurs officiels.
-- Code : BIL_P (223 barèmes et moyennes datés et sourcés, affichés dans l'onglet
+    familial (pour information), cascade du coût employeur à ce qui reste
+    après impôts et taxes, lignes dépliables avec le calcul et une étiquette
+    de précision, section « Hypothèses et limites » sous les résultats,
+    renvoi aux simulateurs officiels. Une saisie hors bornes est ramenée à la
+    borne et signalée sous le champ ; une dépense fiscale sans effet et une
+    garde à domicile saisie pour plusieurs enfants sont signalées.
+- Code : BIL_P (228 barèmes et moyennes datés et sourcés, affichés dans l'onglet
   Sources), bilP ; moteur en fonctions pures : bilRgduCoef, bilCotisPrive,
   bilCotisFonct, bilCotisMicro, bilTauxCsgRetraite, bilCotisRetraite,
   bilBareme, bilAge, bilEnfantsFisc, bilImpot (salaires, pensions, bénéfice
   du micro-entrepreneur, âges), bilFamille, bilCmgMois, bilCmg,
   bilPrimeActivite, bilUc, bilConso, bilNiveauEcole, bilServices, bilOuVa,
   bilCalcule ; affichage : renderBilan, bilUpdate,
-  bilSaisie, bilSaisieNeuve, BIL_PROFILS, bilEnfantsHtml, bilBaremeHtml.
+  bilSaisie (valeurs ramenées dans BIL_BORNES, notes par champ),
+  bilSaisieNeuve, BIL_PROFILS, bilEnfantsHtml, bilBaremeHtml.
   État : state.bil {foyer, adultes[{age, situation, brut, primes, primesAuto,
   activite, partCompl}], patronales, isole, logement, enfants[{age, etudiant,
-  garde{mode, heures, cout}}], fisc{domicile, dons75, dons66, per},
+  garde{mode, heures, cout, hAuto, cAuto}}], fisc{domicile, dons75, dons66, per},
   conso{tf, epargne, litres, carburant}, open}. Résultat : tot{directs,
   conso, verse, recu, solde, services, soldeServices, dispo, frais, reste,
-  taux}. Aucun taux en dehors de BIL_P (valeurs de départ de la saisie
-  exceptées).
+  taux}, info.sansEffet. Aucun taux en dehors de BIL_P (valeurs de départ et
+  bornes de la saisie exceptées).
 - Micro-entrepreneur (décision de Jonathan du 4 octobre 2026) : le revenu
   disponible part du bénéfice forfaitaire ; la cascade porte une marche
   « dépenses professionnelles, au forfait fiscal ».
@@ -105,7 +115,7 @@ Europe ; Sources.
   qu'il produit (situation supposée stable), en partant de la CSG au taux
   plein ; dans une bande sous chaque seuil aucun taux ne se confirme : le plus
   bas est retenu et l'écran le signale (info.rfrRetraite[n].limite).
-- Vérification : 245 tests. L'étape 4 n'est pas contrôlable par OpenFisca :
+- Vérification : 282 tests. L'étape 4 n'est pas contrôlable par OpenFisca :
   ce sont des estimations, vérifiées par des calculs à la main et relues par
   un relecteur indépendant (3 000 foyers aléatoires sans erreur de totaux).
   Quarante-huit foyers types comparés à
@@ -155,10 +165,13 @@ Europe ; Sources.
      prélevée sur les revenus et part de taxes estimées.
 - Écarts connus avec OpenFisca (étape 1), où l'outil suit la règle en vigueur :
   1. SMIC de la réduction générale gelé à 12,02 € pour tout 2026 (OpenFisca
-     applique la hausse de juin) : réduction plus basse de 305 € par an au plus
-     jusqu'à 65 630 € de salaire ; entre 65 631 € et 67 214 €, aucune réduction
-     ici, jusqu'à 784 € dans OpenFisca. Source recoupée sur un site
-     professionnel, décret non relu.
+     applique la hausse de juin), compté sur 1 820 heures par an : seuil de
+     trois SMIC à 65 629,20 € ; réduction plus basse de 307 € par an au plus
+     jusqu'à 65 629 € de salaire ; au-delà, aucune réduction ici, jusqu'à
+     784 € dans OpenFisca à partir de 65 631 € (1 320 € à 65 630 €
+     exactement). Ces écarts viennent d'un recalcul de l'outil, pas d'une
+     interrogation du modèle. Source : entreprendre.service-public.gouv.fr
+     (page vérifiée le 15 juin 2026).
   2. Garantie des salaires (AGS) à 0,25 % (communiqué de l'AGS), contre 0,2 %.
   3. Abattement de 10 % : de 509 € à 14 555 € (impots.gouv.fr), contre 504 €
      et 14 426 €.
@@ -175,8 +188,9 @@ Europe ; Sources.
   n° 2026-138 (majoration pour âge), Légifrance refusant l'accès
   automatique ; taux d'effort du CMG à partir de trois enfants et plancher de
   ressources (821,13 €), lus sur des sites professionnels ; plafond de
-  déduction de l'épargne retraite (non contrôlable par OpenFisca) ; taux
-  moyen d'accidents du travail. Étape 3 : cotisation maladie de 1 % sur la
+  déduction de l'épargne retraite (non contrôlable par OpenFisca) ; limite de
+  quatre plafonds pour la garantie des salaires, l'Apec et l'abattement de
+  CSG (seule l'assiette du chômage a été relue, Unédic). Étape 3 : cotisation maladie de 1 % sur la
   retraite complémentaire (taux lu sur un site professionnel, condition de
   taux de CSG écrite de mémoire) ; règle de lissage du taux de CSG (de
   mémoire, non modélisée) ; taux CNRACL et maladie territoriale lus sur des
@@ -188,8 +202,9 @@ Europe ; Sources.
   (2017) ; niveaux de vie 2024 (Insee) ; accises 2026, circulaire des douanes
   du 30 septembre 2026 (E85 déduit) ; dépense par élève 2025 provisoire, DEPP
   note n° 26.42 (part publique calculée par l'outil) ; soins, Insee Analyses
-  n° 88 (2019, par unité de consommation, non revalorisés : sous-estimation
-  probable d'un cinquième à un quart) ; crèche, 13,38 € par heure réalisée
+  n° 88 (2019, par unité de consommation), revalorisés de 21,4 % par l'outil
+  (dépense de soins par habitant de 2019 à 2024, Insee d'après la Drees ;
+  rien n'est ajouté pour 2025 et 2026) ; crèche, 13,38 € par heure réalisée
   (Caf, 2024).
 - Hors périmètre annoncé à l'écran : mutuelle et prévoyance, versement
   mobilité, temps partiel, allocation de soutien familial, prestation
@@ -204,40 +219,32 @@ Europe ; Sources.
   de la fonction publique. Étape 4 : taxes sur le tabac, l'alcool,
   l'électricité, le gaz, les assurances ; GPL ; dépenses publiques
   collectives (défense, police, justice, dette) non réparties.
-- Défauts mineurs connus, non traités (à arbitrer) :
-  - étape 1 : focus clavier perdu quand on déplie une ligne (aussi dans « Où
-    va l'argent ») ; « 10 % » et « 2026 » écrits en dur dans deux libellés ;
-    SMIC annuel sur 1 820,04 h ; pas de borne haute de saisie ; ligne
-    « Déclaration 2 : 0 € » inutile en union libre ; deux sources du registre
-    sur legisocial.fr, deux liens vers des pages d'accueil ; phrase
-    d'hypothèses dans le formulaire plutôt que sous la synthèse ;
-  - étape 2 : âge hors de 0 à 25 ignoré sans message ; heures de garde sans
-    borne ; une dépense fiscale sans effet (impôt nul, plafond atteint) ne
-    l'explique pas ; changer de mode de garde remplace heures et coût saisis ;
-    garde à domicile d'un enfant de plus de 6 ans à saisir dans « Emploi à
-    domicile » sans que l'écran le dise, et comptée deux fois si elle est
-    saisie sur deux enfants ; « Crèche » proposée sans effet à un parent isolé
-    pour un enfant de 7 à 11 ans ; champs « heures » et « coût » parfois
-    désalignés ;
-  - étape 3 : part complémentaire supérieure à 100 ramenée à 100 % sans
-    message, assiette plafonnée de la retraite additionnelle non signalée ;
-    « 20 % », « 1 % », « 65 ans » écrits en dur dans des textes, valeurs de
-    départ hors du registre ; registre : abattement sur les pensions daté du
-    01/01/1943 (date d'OpenFisca, à vérifier) ; champ « ecarts » vide dans le
-    fichier de cas types ; aucune phrase ne dit que la contribution de l'État
-    employeur (82,28 %) équilibre le compte des pensions et ne se compare pas
-    à une cotisation du privé ; à l'euro exact d'un seuil de CSG, classement
-    dans la tranche basse (comme OpenFisca) ;
-  - étape 4 : champs non bornés (une saisie énorme affiche « ∞ € ») ; les
-    dix barres de « où va ce que je verse » s'écartent du total de 1 à 2 €
-    par arrondi ; niveaux scolaires bornés par les âges de l'allocation de
-    rentrée ; titre de la cascade resté « … au revenu disponible » ; lycéen
-    de 18 ans compté seulement si « Étudiant » est coché ; épargne saisie
-    au-delà de 100 ramenée à 100 sans message ; crèche comptée douze mois
-    sans fermeture ; soins de 2019 non revalorisés (écart non chiffré faute
-    de source ouverte) ; fiche de fiabilité devenue très longue ;
-  - poids : le simulateur a ajouté 192 Ko (60 Ko prévus pour les quatre
-    étapes), dont une bonne part pour le registre des 223 barèmes et moyennes.
+- Reprise des défauts mineurs (4 octobre 2026, plan
+  claude/plans/2026-10-04-defauts-mineurs.md) : les 28 défauts reportés aux
+  quatre étapes sont traités. Ce qui change dans les chiffres : SMIC annuel de
+  la réduction générale sur 1 820 heures ; soins revalorisés de 21,4 % ;
+  l'année d'un changement de niveau scolaire (6, 11, 15, 18 ans), 8 mois dans
+  l'ancien niveau et 4 mois dans le nouveau ; les dix barres de « où va ce
+  que je verse » arrondies au plus fort reste. Sources remplacées par des
+  pages officielles : SMIC de la réduction générale (service-public), taux
+  d'accidents du travail (Cleiss), tranche 2 Agirc-Arrco (Chiffr'Agirc-Arrco
+  2026), assiette à quatre plafonds (Unédic). Fiche de fiabilité rendue en
+  paragraphes.
+- Défauts mineurs restants, relevés par la relecture indépendante de cette
+  reprise (à arbitrer) :
+  - crèche : le crédit d'impôt porte sur douze mois de dépense, alors que le
+    service public de la crèche est compté 8 mois l'année des 3 ans ; de 4 à
+    6 ans, « Crèche » reste proposée (crédit d'impôt) pendant que l'école est
+    comptée douze mois ;
+  - registre : dates de 1943 des deux abattements de 10 % (début de la série
+    d'OpenFisca), expliquées par une phrase générale, non vérifiées ;
+  - soins : revalorisation arrêtée à 2024, part publique supposée stable ;
+  - une crèche est remise à « pas de garde » quand l'âge de l'enfant passe à
+    7 ans (une faute de frappe sur l'âge fait perdre le mode choisi) ;
+  - contour du champ hors bornes peu visible ; lecteurs d'écran non testés ;
+  - tests : deux tests de fiche reposent sur une vingtaine d'expressions de
+    texte ; les écarts de 784 € et 1 320 € avec OpenFisca sont produits par la
+    formule de l'outil des deux côtés.
 - Les quatre étapes du cahier des charges sont livrées.
   Seconde version, non commencée : chômage, RSA, aides au logement, indépendant au réel,
   revenus du patrimoine.
@@ -314,8 +321,11 @@ hypothèses du simulateur budgétaire.
   « Où va l'argent » (PIB Eurostat d'octobre 2026) et 57,3 % dans la
   comparaison par fonction de l'onglet Europe (tableau Eurostat établi avec un
   PIB antérieur). À harmoniser (question posée, sans réponse à ce jour).
-- Simulateur personnel : gel du SMIC et taux moyen d'accidents du travail lus
-  sur des sites professionnels, pas dans le décret ni l'arrêté ; reconduction
+- Simulateur personnel : gel du SMIC lu sur service-public.gouv.fr et taux
+  moyen d'accidents du travail lu sur le site du Cleiss, pas dans le décret ni
+  l'arrêté eux-mêmes ; lecture de l'outil, non confirmée par une source : la
+  contribution de l'État employeur aux pensions « équilibre le régime » ;
+  reconduction
   de la contribution différentielle sur les hauts revenus pour 2026 non
   vérifiée (sans effet pour des salariés).
 
@@ -332,22 +342,38 @@ hypothèses du simulateur budgétaire.
   nationale refusent les téléchargements automatiques de fichiers : les
   déposer à la main dans le dossier.
 
-## Chantier en cours (décidé le 2 octobre 2026)
-Trois ajouts demandés, traités séparément dans cet ordre :
-1. Flux France ↔ UE : livré.
-2. Vue détaillée « Où va l'argent » : livrée (angles usage, nature, payeur).
-3. Simulateur personnel « Mon bilan » : livré, les quatre étapes du cahier
-   des charges sont faites (4 octobre 2026). Suite possible, non commencée :
-   seconde version (chômage, RSA, aides au logement, indépendant au réel,
-   revenus du patrimoine) ; reprise des défauts mineurs listés plus haut.
+## Chantier en cours et feuille de route
+
+Les trois ajouts décidés le 2 octobre 2026 sont livrés : flux France ↔ UE ;
+vue détaillée « Où va l'argent » ; simulateur personnel « Mon bilan » (quatre
+étapes, puis reprise des défauts mineurs le 4 octobre 2026).
+
+Feuille de route demandée par Jonathan le 4 octobre 2026, dans cet ordre :
+0. « Mon bilan » : voir l'évolution de ce que je verse et de ce que je reçois
+   depuis la situation actuelle jusqu'à la retraite, en supposant la même
+   situation jusqu'à la retraite, avec une hypothèse d'évolution salariale
+   moyenne modifiable. Conception à faire valider avant tout développement
+   (proposition envoyée le 4 octobre 2026, en attente de réponse).
+1. Budget 2027 : ajouter les données de la version initiale proposée par le
+   gouvernement, en rendant la version visible à l'écran. Ensuite, sur
+   demande : la version soumise au vote, puis la version adoptée, pour voir
+   ce que change le débat parlementaire. Même chose pour 2025 et 2026.
+   Document déjà dans le projet : « Plafonds de dépenses PLF 27.pdf ».
+2. Refonte de l'ergonomie du site : regrouper dans une catégorie à part tous
+   les simulateurs fondés sur des hypothèses et sur les saisies de
+   l'utilisateur (« Mon bilan », « Simulateur »).
+3. Refonte de l'interface avec le modèle de design « Steep » (dans les
+   artefacts de Jonathan).
+4. Seconde version du simulateur personnel : chômage, RSA, aides au logement,
+   indépendant au réel, revenus du patrimoine.
 
 ## Autres pistes
 - Séries complètes via API (Eurostat historique, OFGL, Insee base 2020 depuis 2007).
 - Détail territorial (cartes régions, départements, communes).
 - Vérifier les dépenses par mission (lois de règlement) et par branche.
 - Liens partageables vers une vue, export image ou CSV, mode pédagogique guidé.
-- Passe d'accessibilité clavier (focus après dépliage, dans « Mon bilan » et
-  « Où va l'argent »).
+- Passe d'accessibilité complète (lecteurs d'écran) : le focus après dépliage
+  est traité dans « Mon bilan » et « Où va l'argent ».
 
 ## Outils conservés dans le projet (claude/outils/)
 - ue-flux-extraction.py, ova-extraction.py : régénèrent les blocs de données
@@ -358,16 +384,17 @@ Trois ajouts demandés, traités séparément dans cet ordre :
   chaque année). bilan-oracle.py : recalcule les cas types avec OpenFisca et
   écrit bilan-cas-types.json (étape 1), bilan-cas-famille.json (étape 2,
   option --famille) et bilan-cas-situations.json (étape 3, option
-  --situations), que les tests relisent sans réseau.
+  --situations), que les tests relisent sans réseau ; option --annoter :
+  renseigne les écarts connus dans les fichiers de cas, sans appel au modèle.
 - ue-flux-tests.mjs, ova-tests.mjs, bilan-tests.mjs, bilan-famille-tests.mjs,
-  bilan-situations-tests.mjs, bilan-reste-tests.mjs, tests-helpers.mjs : 245
-  tests automatisés (Node
+  bilan-situations-tests.mjs, bilan-reste-tests.mjs, bilan-mineurs-tests.mjs,
+  tests-helpers.mjs : 282 tests automatisés (Node
   + Playwright 1.56 + chart.js 4.4.1 en local ; lancer
   `node --test tests/*.test.mjs`, les fichiers de test dans un dossier tests/
   à côté de index.html, renommés ue-flux.test.mjs, ova.test.mjs,
   bilan.test.mjs, bilan-famille.test.mjs, bilan-situations.test.mjs,
-  bilan-reste.test.mjs et helpers.mjs, avec les trois fichiers de cas types
-  à côté).
+  bilan-reste.test.mjs, bilan-mineurs.test.mjs et helpers.mjs, avec les trois
+  fichiers de cas types à côté).
 
 ## Préférences de travail
 - Échanges en français ; chiffres toujours sourcés avec un niveau de fiabilité.
@@ -381,3 +408,7 @@ Trois ajouts demandés, traités séparément dans cet ordre :
   a trouvé des erreurs réelles aux quatre étapes.
 - Quand une recherche de sources est déléguée, rouvrir soi-même les pages
   dont les chiffres entrent dans l'application avant de les citer.
+- Les pages web sont lues par un outil qui les résume : il a rendu deux
+  « citations exactes » différentes pour la même page. Reprendre les valeurs
+  et les dates, jamais des mots entre guillemets ; écrire « lecture de
+  l'outil » quand une phrase va au-delà de ce que la page établit.
